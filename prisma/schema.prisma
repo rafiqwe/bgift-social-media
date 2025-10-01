@@ -1,0 +1,225 @@
+// BGIFT Social Media MVP - Prisma Schema
+// This schema includes only essential models for MVP functionality
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User model - Core user information
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  name          String
+  username      String    @unique
+  image         String?
+  bio           String?
+  isActive      Boolean   @default(true)
+  isVerified    Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  emailVerified DateTime?
+  accounts      Account[]
+
+  // User's posts
+  posts Post[]
+
+  // User's comments on posts
+  comments Comment[]
+
+  // User's likes on posts
+  likes Like[]
+
+  // Friendship relationships (as requester)
+  sentFriendRequests FriendRequest[] @relation("FriendRequester")
+
+  // Friendship relationships (as receiver)
+  receivedFriendRequests FriendRequest[] @relation("FriendReceiver")
+
+  // Direct messages sent
+  sentMessages Message[] @relation("MessageSender")
+
+  // Direct messages received  
+  receivedMessages Message[] @relation("MessageReceiver")
+
+  // Conversations the user is part of
+  conversations ConversationParticipant[]
+  Session       Session[]
+
+  @@map("users")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+// Post model - User posts/updates
+model Post {
+  id        String   @id @default(cuid())
+  content   String
+  imageUrl  String? // Optional image for posts
+  authorId  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Post author relationship
+  author User @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  // Post interactions
+  comments Comment[]
+  likes    Like[]
+
+  @@map("posts")
+}
+
+// Comment model - Comments on posts
+model Comment {
+  id        String   @id @default(cuid())
+  content   String
+  postId    String
+  authorId  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Comment relationships
+  post   Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  author User @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@map("comments")
+}
+
+// Like model - Post likes
+model Like {
+  id        String   @id @default(cuid())
+  postId    String
+  userId    String
+  createdAt DateTime @default(now())
+
+  // Like relationships
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Ensure user can only like a post once
+  @@unique([postId, userId])
+  @@map("likes")
+}
+
+// Friend Request model - Managing friendships
+model FriendRequest {
+  id          String           @id @default(cuid())
+  requesterId String
+  receiverId  String
+  status      FriendshipStatus @default(PENDING)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  // Friend request relationships
+  requester User @relation("FriendRequester", fields: [requesterId], references: [id], onDelete: Cascade)
+  receiver  User @relation("FriendReceiver", fields: [receiverId], references: [id], onDelete: Cascade)
+
+  // Prevent duplicate friend requests
+  @@unique([requesterId, receiverId])
+  @@map("friend_requests")
+}
+
+// Conversation model - Chat conversations
+model Conversation {
+  id        String           @id @default(cuid())
+  type      ConversationType @default(DIRECT)
+  name      String? // For group chats (future feature)
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+
+  // Conversation relationships
+  participants ConversationParticipant[]
+  messages     Message[]
+
+  @@map("conversations")
+}
+
+// Conversation participants - Many-to-many relationship
+model ConversationParticipant {
+  id             String   @id @default(cuid())
+  conversationId String
+  userId         String
+  joinedAt       DateTime @default(now())
+
+  // Participant relationships
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Ensure user can only be added to conversation once
+  @@unique([conversationId, userId])
+  @@map("conversation_participants")
+}
+
+// Message model - Direct messages
+model Message {
+  id             String   @id @default(cuid())
+  content        String
+  senderId       String
+  receiverId     String? // For direct messages
+  conversationId String? // For group messages (future)
+  isRead         Boolean  @default(false)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  // Message relationships
+  sender       User          @relation("MessageSender", fields: [senderId], references: [id], onDelete: Cascade)
+  receiver     User?         @relation("MessageReceiver", fields: [receiverId], references: [id], onDelete: SetNull)
+  conversation Conversation? @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@map("messages")
+}
+
+// Enums for status management
+enum FriendshipStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  BLOCKED
+}
+
+enum ConversationType {
+  DIRECT
+  GROUP
+}
