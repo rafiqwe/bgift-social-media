@@ -16,7 +16,7 @@ export default async function DashboardLayout({
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-b from-gray-100 to-gray-200 text-gray-900">
       {/* Top Navigation */}
       <Navbar />
 
@@ -30,7 +30,7 @@ export default async function DashboardLayout({
           </aside>
 
           {/* Main Content */}
-          <main className="flex-1 min-w-0">
+          <main className="flex-1 min-w-0 ">
             {children}
           </main>
 
