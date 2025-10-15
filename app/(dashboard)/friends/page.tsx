@@ -73,11 +73,16 @@ export default function FriendsPage() {
   };
 
   const removeFriend = async (id: string) => {
-    await fetch("/api/friends/unfriend", {
-      method: "DELETE",
-      body: JSON.stringify({ friendId: id }),
-    });
-    setFriends((prev) => prev.filter((f) => f.id !== id));
+    console.log("the id:", id);
+    try {
+      await fetch("/api/friends/unfriend", {
+        method: "DELETE",
+        body: JSON.stringify({ friendId: id }),
+      });
+      setFriends((prev) => prev.filter((f) => f.id !== id));
+    } catch (err) {
+      console.log("Error form unfriend:", err);
+    }
   };
 
   return (
@@ -87,7 +92,7 @@ export default function FriendsPage() {
         <h1 className="text-xl font-bold">Friends</h1>
         <div className="flex gap-3">
           <button
-            className={`px-3 py-1 rounded-full text-sm ${
+            className={`px-3 py-1 cursor-pointer rounded-md text-sm ${
               tab === "friends" ? "bg-blue-500 text-white" : "bg-gray-200"
             }`}
             onClick={() => setTab("friends")}
@@ -95,7 +100,7 @@ export default function FriendsPage() {
             All Friends
           </button>
           <button
-            className={`px-3 py-1 rounded-full text-sm ${
+            className={`px-3 py-1 cursor-pointer rounded-md text-sm ${
               tab === "requests" ? "bg-blue-500 text-white" : "bg-gray-200"
             }`}
             onClick={() => setTab("requests")}
@@ -103,7 +108,7 @@ export default function FriendsPage() {
             Requests
           </button>
           <button
-            className={`px-3 py-1 rounded-full text-sm ${
+            className={`px-3 py-1 cursor-pointer rounded-md text-sm ${
               tab === "sent" ? "bg-blue-500 text-white" : "bg-gray-200"
             }`}
             onClick={() => setTab("sent")}
@@ -183,7 +188,7 @@ export default function FriendsPage() {
                 </div>
                 <button
                   onClick={() => removeFriend(req.receiver?.id || "")}
-                  className="px-3 py-1 text-sm bg-gray-300 rounded-full hover:bg-gray-400"
+                  className="px-3 py-1 text-sm bg-gray-300 rounded-md hover:bg-gray-400 cursor-pointer"
                 >
                   Cancel
                 </button>
