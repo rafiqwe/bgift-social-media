@@ -24,6 +24,7 @@ model User {
   updatedAt     DateTime  @updatedAt
   emailVerified DateTime?
   accounts      Account[]
+  reports       Reports[] @relation("UserReports")
 
   // User's posts
   posts Post[]
@@ -46,9 +47,13 @@ model User {
   // Direct messages received  
   receivedMessages Message[] @relation("MessageReceiver")
 
+  fromUser      Notification[]            @relation("NotificationSender")
+  mentioned     Mention[]
   // Conversations the user is part of
   conversations ConversationParticipant[]
   Session       Session[]
+  notifications Notification[]
+  // Notification  Notification[]
 
   @@map("users")
 }
@@ -101,12 +106,17 @@ model Post {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  // report relation
+  reports Reports[] @relation("PostReports")
+
   // Post author relationship
   author User @relation(fields: [authorId], references: [id], onDelete: Cascade)
 
   // Post interactions
-  comments Comment[]
-  likes    Like[]
+  comments      Comment[]
+  likes         Like[]
+  notifications Notification[]
+  mentions      Mention[]
 
   @@map("posts")
 }
@@ -211,6 +221,53 @@ model Message {
   @@map("messages")
 }
 
+// Report model
+model Reports {
+  id        String   @id @default(cuid())
+  reason    String
+  details   String?
+  createdAt DateTime @default(now())
+
+  // 🔗 Relations
+  postId String
+  post   Post   @relation("PostReports", fields: [postId], references: [id], onDelete: Cascade)
+
+  userId String
+  user   User   @relation("UserReports", fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// Notification model 
+model Notification {
+  id        String           @id @default(cuid())
+  type      NotificationType
+  message   String
+  link      String? // e.g. /post/123 or /user/456
+  isRead    Boolean          @default(false)
+  createdAt DateTime         @default(now())
+
+  // Relations
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Optional sender relation (useful for social apps)
+  fromUserId String?
+  fromUser   User?   @relation("NotificationSender", fields: [fromUserId], references: [id])
+
+  // Optional relation to a post (makes analytics easier)
+  postId String?
+  post   Post?   @relation(fields: [postId], references: [id], onDelete: Cascade)
+}
+
+// Mention Model
+model Mention {
+  id          String   @id @default(cuid())
+  postId      String
+  post        Post     @relation(fields: [postId], references: [id])
+  mentionedId String // user who was mentioned
+  mentioned   User     @relation(fields: [mentionedId], references: [id])
+  createdAt   DateTime @default(now())
+}
+
 // Enums for status management
 enum FriendshipStatus {
   PENDING
@@ -222,4 +279,13 @@ enum FriendshipStatus {
 enum ConversationType {
   DIRECT
   GROUP
+}
+
+enum NotificationType {
+  LIKE
+  COMMENT
+  FOLLOW
+  MENTION
+  REPORT
+  SYSTEM
 }
