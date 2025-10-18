@@ -25,56 +25,50 @@ export function useNotifications() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // 📥 Fetch notifications from API
+  // 📥 Fetch all notifications
   const fetchNotifications = async () => {
     try {
       setLoading(true);
-      setError(null);
-
       const res = await fetch("/api/notifications");
       if (!res.ok) throw new Error("Failed to fetch notifications");
 
       const data = await res.json();
       const list = Array.isArray(data) ? data : data.data;
       setNotifications(Array.isArray(list) ? list : []);
-    } catch (err: any) {
-      console.error("❌ Notification fetch error:", err);
+    } catch (err) {
       setError(err.message);
     } finally {
       setLoading(false);
     }
   };
 
-  // ✅ Mark all as read
-  const markAllAsRead = async () => {
-    try {
-      const res = await fetch("/api/notifications", { method: "PUT" });
-      if (!res.ok) throw new Error("Failed to mark notifications as read");
-
-      setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
-    } catch (err: any) {
-      console.error("❌ Mark as read error:", err);
-      setError(err.message);
-    }
-  };
-
-  // ✅ Mark single notification as read (updates unreadCount immediately)
+  // ✅ Mark one notification as read
   const markAsRead = async (id: string) => {
     try {
-      const res = await fetch(`/api/notifications/${id}`, { method: "PUT" });
-      if (!res.ok) throw new Error("Failed to mark as read");
-
-      // 🧠 Optimistic update — no refetch needed
+      // 🧠 Optimistic UI update
       setNotifications((prev) =>
         prev.map((n) => (n.id === id ? { ...n, isRead: true } : n))
       );
-    } catch (err: any) {
-      console.error("❌ Single mark as read error:", err);
+
+      const res = await fetch(`/api/notifications/${id}`, { method: "PUT" });
+      if (!res.ok) throw new Error("Failed to mark as read");
+    } catch (err) {
+      console.error("❌ Error marking as read:", err);
       setError(err.message);
     }
   };
 
-  // 🔢 Derived unread count
+  // ✅ Mark all as read
+  const markAllAsRead = async () => {
+    try {
+      await fetch("/api/notifications", { method: "PUT" });
+      setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+  // 🔢 Derived unread count (auto updates)
   const unreadCount = useMemo(
     () => notifications.filter((n) => !n.isRead).length,
     [notifications]
