@@ -11,6 +11,11 @@ import { DotIcon, Ellipsis } from "lucide-react";
 import PostMenuModal from "./PostMenuModel";
 import PostUpdateModal from "./PostUpdateModel";
 import PostImageModal from "./PostImageModel";
+import Link from "next/link";
+import ReportModal from "../Reports/PostReportModel";
+import PostSuccessModal from "../Notification/NotificationModal2";
+import { useFeed } from "@/app/hooks/use-feed";
+import PostDeleteModal from "./PostDeleteModal";
 
 export interface Comment {
   id: string;
@@ -43,9 +48,15 @@ interface PostCardProps {
     isLikedByUser: boolean;
     isOwnPost: boolean;
   };
+  handlePostDeleteFromProfile?: (postId: string) => void;
+  isProfile?: boolean;
 }
 
-export default function PostCard({ post }: PostCardProps) {
+export default function PostCard({
+  post,
+  handlePostDeleteFromProfile,
+  isProfile = false
+}: PostCardProps) {
   // Likes
   const [isLiked, setIsLiked] = useState(post.isLikedByUser);
   const [likeCount, setLikeCount] = useState(post._count.likes);
@@ -53,12 +64,17 @@ export default function PostCard({ post }: PostCardProps) {
   const [isLikesModalOpen, setIsLikesModalOpen] = useState(false);
   const [isPostEdit, setIsPostEdit] = useState(false);
   const [isPostImageOpen, setIsPostImageOpen] = useState(false);
+  const [isReportOpen, setIsReportOpen] = useState(false);
+  const [isPostSuccessOpen, setIsPostSuccessOpen] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [isPostSuccessMessage, setIsPostSuccessMessage] = useState("");
   const [updatedPost, setUpdatedPost] = useState(post);
 
   // Comments
   const [isCommentsOpen, setIsCommentsOpen] = useState(false);
   const [comments, setComments] = useState<Comment[]>([]);
   const [isLoadingComments, setIsLoadingComments] = useState(false);
+  const { removePost, setPosts } = useFeed();
 
   // useEffect for fetching comments can be implemented if needed
 
@@ -106,7 +122,7 @@ export default function PostCard({ post }: PostCardProps) {
     }
   };
 
-  // ✅ Post Update (Fixed)
+  // ✅ Post Update
   const handlePostUpdate = async (formData: FormData) => {
     try {
       const res = await axios.put("/api/posts", formData, {
@@ -124,6 +140,8 @@ export default function PostCard({ post }: PostCardProps) {
         });
 
         setIsPostEdit(false); // Close modal
+        setIsPostSuccessOpen(true); // Open success modal
+        setIsPostSuccessMessage("Your post has been updated successfully!");
       }
     } catch (error) {
       console.error("❌ Error from post update:", error);
@@ -142,40 +160,80 @@ export default function PostCard({ post }: PostCardProps) {
     setComments((prev) => prev.filter((c) => c.id !== commentId));
   };
 
+  const handleReportSubmit = async (reason: string, details: string) => {
+    try {
+      const res = await axios.post("/api/report", {
+        reason,
+        details,
+        postId: post.id,
+      });
+      if (res.status === 201) {
+        const data = res.data;
+        console.log(data);
+      }
+    } catch (error) {
+      console.log("Error from report submit ", error);
+    }
+  };
+
+  // Delete post
+  const handlePostDelete = async (postId: string) => {
+    try {
+      const res = await axios.delete(`/api/posts?postId=${postId}`);
+      if (res.status === 200) {
+        // const data = res.data;
+        setIsPostSuccessMessage("Your post has been deleted successfully!");
+        setIsPostSuccessOpen(true);
+        if(isProfile){
+          handlePostDeleteFromProfile(updatedPost.id);
+        }
+        removePost(updatedPost.id);
+      }
+    } catch (error) {
+      console.error("❌ Error deleting post:", error);
+      setIsPostSuccessMessage("Failed to delete post. Please try again.");
+      setIsPostSuccessOpen(true);
+    }
+  };
+
   return (
     <div className="bg-white rounded-lg shadow p-6">
       {/* Author */}
       <div className="flex items-center gap-3 justify-between">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-200">
-            {updatedPost.author.image ? (
-              <Image
-                src={updatedPost.author.image}
-                alt={updatedPost.author.name}
-                width={40}
-                height={40}
-              />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center bg-blue-500 text-white font-bold">
-                {updatedPost.author.name.charAt(0)}
-              </div>
-            )}
+        <Link href={`/profile/${post.author.id}`}>
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-200">
+              {updatedPost.author.image ? (
+                <Image
+                  src={updatedPost.author.image}
+                  alt={updatedPost.author.name}
+                  width={40}
+                  height={40}
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center bg-blue-500 text-white font-bold">
+                  {updatedPost.author.name.charAt(0)}
+                </div>
+              )}
+            </div>
+            <div>
+              <p className="font-semibold">{updatedPost.author.name}</p>
+              <p className="text-sm text-gray-500">
+                @{updatedPost.author.username} •{" "}
+                {formatDistanceToNow(new Date(updatedPost.createdAt), {
+                  addSuffix: true,
+                })}
+              </p>
+            </div>
           </div>
-          <div>
-            <p className="font-semibold">{updatedPost.author.name}</p>
-            <p className="text-sm text-gray-500">
-              @{updatedPost.author.username} •{" "}
-              {formatDistanceToNow(new Date(updatedPost.createdAt), {
-                addSuffix: true,
-              })}
-            </p>
-          </div>
-        </div>
+        </Link>
         <PostMenuModal
+          onReportOpen={() => setIsReportOpen(true)}
+          onDeleteModalOpen={() => setShowDeleteModal(true)}
           postId={updatedPost.id}
           isOwner={updatedPost.isOwnPost}
           onEdit={() => setIsPostEdit(true)}
-          onDelete={(id) => console.log("Delete:", id)}
+          onDelete={handlePostDelete}
           onCopyLink={(id) => console.log("Link copied for:", id)}
         />
       </div>
@@ -277,6 +335,24 @@ export default function PostCard({ post }: PostCardProps) {
         isOpen={isPostImageOpen}
         onClose={() => setIsPostImageOpen(false)}
       />
+      <ReportModal
+        isOpen={isReportOpen}
+        onClose={() => setIsReportOpen(false)}
+        onSubmit={handleReportSubmit}
+      />
+      <PostSuccessModal
+        message={isPostSuccessMessage}
+        show={isPostSuccessOpen}
+        onClose={() => setIsPostSuccessOpen(false)}
+      />
+
+      {showDeleteModal && (
+        <PostDeleteModal
+          postId={post.id}
+          onClose={() => setShowDeleteModal(false)}
+          onDelete={handlePostDelete}
+        />
+      )}
     </div>
   );
 }
