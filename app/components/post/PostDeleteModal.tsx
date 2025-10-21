@@ -3,8 +3,9 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
+import axios from "axios";
 
-interface CommentDeleteModalProps {
+interface PostDeleteModalProps {
   postId: string;
   onClose: () => void;
   onDelete: (postId: string) => void;
@@ -14,7 +15,7 @@ export default function PostDeleteModal({
   postId,
   onClose,
   onDelete,
-}: CommentDeleteModalProps) {
+}: PostDeleteModalProps) {
   const [isDeleting, setIsDeleting] = useState(false);
   const [error, setError] = useState("");
 
@@ -23,15 +24,7 @@ export default function PostDeleteModal({
     setError("");
 
     try {
-      const res = await fetch(`/api/post/${postId}`, {
-        method: "DELETE",
-      });
-
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error || "Failed to delete comment");
-      }
-
+      // const res = await axios.delete(`/api/posts?postId=${postId}`);
       onDelete(postId);
       onClose();
     } catch (err) {
@@ -67,12 +60,12 @@ export default function PostDeleteModal({
 
           {/* Title */}
           <h2 className="text-xl font-semibold text-gray-900 mb-2">
-            Delete Comment
+            Delete Post
           </h2>
 
           {/* Message */}
           <p className="text-gray-600 mb-5">
-            Are you sure you want to delete this comment?{" "}
+            Are you sure you want to delete this post?{" "}
             <span className="font-medium text-gray-800">
               This action cannot be undone.
             </span>
