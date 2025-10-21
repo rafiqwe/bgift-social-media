@@ -69,8 +69,8 @@ export default function PostLikesModal({
 
           {/* Title */}
           <h2 className="text-xl font-semibold text-gray-900 mb-4 text-center">
-            Likes
-          </h2>
+            Likes By
+          </h2>  
 
           {/* Loading State (Skeletons) */}
           {isLoading && (
