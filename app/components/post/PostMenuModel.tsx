@@ -7,6 +7,8 @@ import { useState, useRef, useEffect } from "react";
 interface PostMenuModalProps {
   postId: string;
   onEdit?: (id: string) => void;
+  onReportOpen?: () => void;
+  onDeleteModalOpen?: () => void;
   onDelete?: (id: string) => void;
   onCopyLink?: (id: string) => void;
   isOwner?: boolean; // if true, show Edit/Delete
@@ -18,6 +20,8 @@ export default function PostMenuModal({
   onEdit,
   onDelete,
   onCopyLink,
+  onReportOpen,
+  onDeleteModalOpen,
   isOwner = false,
 }: PostMenuModalProps) {
   const [open, setOpen] = useState(false);
@@ -74,7 +78,8 @@ export default function PostMenuModal({
                 </button>
                 <button
                   onClick={() => {
-                    onDelete?.(postId);
+                    onDeleteModalOpen()
+                    // onDelete?.(postId);
                     setOpen(false);
                   }}
                   className="w-full text-left px-4 py-2.5 text-red-600 hover:bg-red-50 transition"
@@ -85,7 +90,7 @@ export default function PostMenuModal({
             ) : (
               <button
                 onClick={() => {
-                  console.log("Report Post", postId);
+                  onReportOpen();
                   setOpen(false);
                 }}
                 className="w-full text-left px-4 py-2.5 text-gray-700 hover:bg-gray-50 transition"
