@@ -8,10 +8,31 @@ interface PageProps {
     postId: string;
   }>;
 }
+interface Post {
+  id: string;
+  content: string;
+  imageUrl: string | null;
+  createdAt: string;
+  author: {
+    id: string;
+    name: string;
+    username: string;
+    image: string | null;
+    bio: string | null;
+  };
+  likes: { userId: string }[];
+  comments: any[];
+  _count: {
+    likes: number;
+    comments: number;
+  };
+  isLikedByUser: boolean;
+  isOwnPost: boolean;
+}
 
 const Page = ({ params }: PageProps) => {
   const { postId } = use(params);
-  const [postData, setPostData] = useState<any>(null);
+  const [postData, setPostData] = useState<Post | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -57,7 +78,9 @@ const Page = ({ params }: PageProps) => {
   if (error || !postData) {
     return (
       <div className="flex justify-center items-center h-[60vh]">
-        <p className="text-red-500 font-medium">{error || "Post not found 😢"}</p>
+        <p className="text-red-500 font-medium">
+          {error || "Post not found 😢"}
+        </p>
       </div>
     );
   }
