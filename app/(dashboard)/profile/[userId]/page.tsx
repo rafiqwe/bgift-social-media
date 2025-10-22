@@ -63,11 +63,16 @@ export default function ProfilePage() {
       const data = await res.json();
       setProfile(data.user);
       setPosts(data.posts);
+      console.log(data.posts);
     } catch (error) {
       console.error("Error fetching profile:", error);
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handlePostDelete = (postId: string) => {
+    setPosts((prevPosts) => prevPosts.filter((post) => post.id !== postId));
   };
 
   const handleAddFriend = async () => {
@@ -78,7 +83,7 @@ export default function ProfilePage() {
         body: JSON.stringify({ receiverId: userId }),
       });
 
-      // if (res.ok) 
+      // if (res.ok)
     } catch (error) {
       console.error("Error sending friend request:", error);
     }
@@ -232,7 +237,14 @@ export default function ProfilePage() {
                   No posts yet ✨
                 </p>
               ) : (
-                posts.map((post) => <PostCard key={post.id} post={post} />)
+                posts.map((post) => (
+                  <PostCard
+                    key={post.id}
+                    post={post}
+                    handlePostDeleteFromProfile={handlePostDelete}
+                    isProfile={true}
+                  />
+                ))  
               )}
             </div>
           )}
