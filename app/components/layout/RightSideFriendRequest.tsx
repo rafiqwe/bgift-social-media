@@ -1,8 +1,8 @@
-'use client'
+"use client";
 
-import Image from 'next/image'
-import Link from 'next/link'
-import React, { useEffect, useState } from 'react'
+import Image from "next/image";
+import Link from "next/link";
+import React, { useEffect, useState } from "react";
 
 const RightSideFriendRequest = () => {
   const [friendRequests, setFriendRequests] = useState<any[]>([]);
@@ -13,7 +13,6 @@ const RightSideFriendRequest = () => {
       .then((res) => res.json())
       .then((data) => setFriendRequests(data.received.slice(0, 3)))
       .catch(console.error);
-
   }, []);
 
   const handleAccept = async (requestId: string) => {
@@ -43,12 +42,12 @@ const RightSideFriendRequest = () => {
   };
   return (
     <div>
-        {friendRequests.length > 0 && (
+      {friendRequests.length > 0 && (
         <div className="bg-white rounded-lg shadow p-4">
           <div className="flex items-center justify-between mb-4">
             <h2 className="font-semibold text-gray-800">Friend Requests</h2>
             <Link
-              href="/friends/requests"
+              href="/friends"
               className="text-sm text-blue-600 hover:underline"
             >
               See all
@@ -103,7 +102,7 @@ const RightSideFriendRequest = () => {
         </div>
       )}
     </div>
-  )
-}
+  );
+};
 
-export default RightSideFriendRequest
+export default RightSideFriendRequest;
