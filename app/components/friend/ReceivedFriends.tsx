@@ -36,13 +36,13 @@ const ReceivedFriends: React.FC<ReceivedFriendsProps> = ({req, rejectRequest, ac
       <div className="flex gap-2">
         <button
           onClick={() => acceptRequest(req.id)}
-          className="px-3 py-1 text-sm bg-blue-500 text-white rounded-full hover:bg-blue-600"
+          className="px-3 py-1 text-sm bg-blue-500 text-white rounded-md hover:bg-blue-600"
         >
           Accept
         </button>
         <button
           onClick={() => rejectRequest(req.id)}
-          className="px-3 py-1 text-sm bg-gray-300 rounded-full hover:bg-gray-400"
+          className="px-3 py-1 text-sm bg-gray-300 rounded-md hover:bg-gray-400"
         >
           Reject
         </button>
