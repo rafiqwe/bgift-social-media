@@ -265,7 +265,6 @@ export default function PostImageModal({
                 />
               </div>
             </div>
-
             {/* Mobile hint / scale indicator */}
             <div className="absolute bottom-3 left-3 z-40">
               <div className="bg-white/90 px-3 py-1 rounded-md text-sm shadow">
