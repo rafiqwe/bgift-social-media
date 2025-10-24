@@ -268,6 +268,18 @@ model Mention {
   createdAt   DateTime @default(now())
 }
 
+// Bug Report model
+model BugReport {
+  id            String   @id @default(cuid())
+  title         String
+  details       String
+  steps         String
+  severity      String
+  reporterEmail String?
+  attachments   String[] // store Cloudinary URLs
+  createdAt     DateTime @default(now())
+}
+
 // Enums for status management
 enum FriendshipStatus {
   PENDING
