@@ -1,4 +1,4 @@
-'use client'
+"use client";
 import axios from "axios";
 import { useState, useEffect, useCallback } from "react";
 
@@ -41,12 +41,12 @@ export function useFeed() {
     try {
       setIsLoading(true);
       setError(null);
-      
+
       const res = await axios.get("/api/posts/feed?limit=10");
       if (res.status === 400) throw new Error("Failed to fetch posts");
-      
+
       const data: FeedResponse = res.data;
-      
+
       setPosts(data.posts);
       setCursor(data.nextCursor);
       setHasMore(data.hasMore);
@@ -64,17 +64,19 @@ export function useFeed() {
     try {
       setIsLoading(true);
       setError(null);
-      
+
       const res = await axios.get(`/api/posts/feed?limit=10&cursor=${cursor}`);
       if (res.status === 400) throw new Error("Failed to fetch posts");
-      
+
       const data: FeedResponse = res.data;
-      
+
       setPosts((prev) => [...prev, ...data.posts]);
       setCursor(data.nextCursor);
       setHasMore(data.hasMore);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load more posts");
+      setError(
+        err instanceof Error ? err.message : "Failed to load more posts"
+      );
     } finally {
       setIsLoading(false);
     }
@@ -97,6 +99,7 @@ export function useFeed() {
   // Remove post from feed
   const removePost = (postId: string) => {
     setPosts((prev) => prev.filter((post) => post.id !== postId));
+    console.log("post Id from remove post:", postId);
   };
 
   useEffect(() => {
@@ -110,6 +113,7 @@ export function useFeed() {
     error,
     loadMorePosts,
     addPost,
+    setPosts: setPosts,
     updatePost,
     removePost,
     refresh: loadInitialPosts,
