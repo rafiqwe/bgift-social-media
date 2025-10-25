@@ -35,7 +35,7 @@ const CommentForm: React.FC<CommentFormProps> = ({ setComments, postId }) => {
         content: newComment,
       });
 
-      setComments((prev) => [...prev, res.data.comment]);
+      setComments((prev) => [res.data, ...prev]);
       setNewComment("");
     } catch (error) {
       console.error("Failed to add comment:", error);
