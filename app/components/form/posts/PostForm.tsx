@@ -5,12 +5,15 @@ import { useState } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import axios from "axios";
+import PostSuccessModal from "../../Notification/NotificationModal2";
 interface IImageprops {
   image: string;
 }
 export default function PostForm({ image }: IImageprops) {
   const [content, setContent] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isPostSuccessOpen, setIsPostSuccessOpen] = useState(false);
+  const [isPostSuccessMessage, setIsPostSuccessMessage] = useState("");
   const [preview, setPreview] = useState<string | null>(null);
   const { addPost } = useFeed();
 
@@ -33,6 +36,8 @@ export default function PostForm({ image }: IImageprops) {
         addPost(newPost);
         setContent("");
         setPreview(null);
+        setIsPostSuccessOpen(true);
+        setIsPostSuccessMessage("Your post has been created successfully!");
       }
     } catch (error) {
       console.error("Error creating post:", error);
@@ -54,88 +59,95 @@ export default function PostForm({ image }: IImageprops) {
   };
 
   return (
-    <motion.form
-      onSubmit={handleSubmit}
-      initial={{ opacity: 0, y: 15 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
-      className="bg-white/80 backdrop-blur-md rounded-2xl shadow-md border border-gray-200 
+    <>
+      <motion.form
+        onSubmit={handleSubmit}
+        initial={{ opacity: 0, y: 15 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+        className="bg-white/80 backdrop-blur-md rounded-2xl shadow-md border border-gray-200 
                  p-4 mb-5 transition hover:shadow-lg"
-    >
-      <div className="flex items-start gap-3">
-        {/* User avatar */}
-        <Image
-          src={image}
-          alt="Profile"
-          width={42}
-          height={42}
-          className="rounded-full border shadow-sm"
-        />
-
-        {/* Textarea + actions */}
-        <div className="flex-1">
-          <textarea
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            placeholder="Share your thoughts..."
-            className="w-full p-3 text-gray-700 border rounded-xl resize-none
-                       focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white/70"
-            rows={3}
+      >
+        <div className="flex items-start gap-3">
+          {/* User avatar */}
+          <Image
+            src={image}
+            alt="Profile"
+            width={42}
+            height={42}
+            className="rounded-full border shadow-sm"
           />
 
-          {/* Image preview */}
-          {preview && (
-            <div className="relative mt-3">
-              <Image
-                src={preview}
-                alt="preview"
-                width={500}
-                height={300}
-                className="rounded-lg border"
-              />
-              <button
-                type="button"
-                onClick={() => setPreview(null)}
-                className="absolute top-2 right-2 bg-black/60 text-white text-xs px-2 py-1 rounded-md hover:bg-black/80"
-              >
-                ✕
-              </button>
-            </div>
-          )}
+          {/* Textarea + actions */}
+          <div className="flex-1">
+            <textarea
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              placeholder="Share your thoughts..."
+              className="w-full p-3 text-gray-700 border rounded-xl resize-none
+                       focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white/70"
+              rows={3}
+            />
 
-          {/* Action buttons */}
-          <div className="flex items-center justify-between mt-3">
-            <div className="flex gap-3 text-gray-600">
-              <label className="flex items-center gap-1 px-3 py-1 text-sm rounded-lg hover:bg-gray-100 transition cursor-pointer">
-                📷 Photo
-                <input
-                  type="file"
-                  accept="image/*"
-                  hidden
-                  onChange={handleImageUpload}
+            {/* Image preview */}
+            {preview && (
+              <div className="relative mt-3">
+                <Image
+                  src={preview}
+                  alt="preview"
+                  width={500}
+                  height={300}
+                  className="rounded-lg border"
                 />
-              </label>
-              <button
-                type="button"
-                className="flex items-center gap-1 px-3 py-1 text-sm rounded-lg hover:bg-gray-100 transition"
-              >
-                😀 Emoji
-              </button>
-            </div>
+                <button
+                  type="button"
+                  onClick={() => setPreview(null)}
+                  className="absolute top-2 right-2 bg-black/60 text-white text-xs px-2 py-1 rounded-md hover:bg-black/80"
+                >
+                  ✕
+                </button>
+              </div>
+            )}
 
-            <motion.button
-              whileTap={{ scale: 0.95 }}
-              type="submit"
-              disabled={!content.trim() || isSubmitting}
-              className="px-6 py-2 bg-blue-600 text-white rounded-lg font-medium 
+            {/* Action buttons */}
+            <div className="flex items-center justify-between mt-3">
+              <div className="flex gap-3 text-gray-600">
+                <label className="flex items-center gap-1 px-3 py-1 text-sm rounded-lg hover:bg-gray-100 transition cursor-pointer">
+                  📷 Photo
+                  <input
+                    type="file"
+                    accept="image/*"
+                    hidden
+                    onChange={handleImageUpload}
+                  />
+                </label>
+                <button
+                  type="button"
+                  className="flex items-center gap-1 px-3 py-1 text-sm rounded-lg hover:bg-gray-100 transition"
+                >
+                  😀 Emoji
+                </button>
+              </div>
+
+              <motion.button
+                whileTap={{ scale: 0.95 }}
+                type="submit"
+                disabled={!content.trim() || isSubmitting}
+                className="px-6 py-2 bg-blue-600 text-white rounded-lg font-medium 
                          hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed 
                          transition-all shadow-md"
-            >
-              {isSubmitting ? "Posting..." : "Post"}
-            </motion.button>
+              >
+                {isSubmitting ? "Posting..." : "Post"}
+              </motion.button>
+            </div>
           </div>
         </div>
-      </div>
-    </motion.form>
+      </motion.form>
+      <PostSuccessModal
+        message={isPostSuccessMessage}
+        show={isPostSuccessOpen}
+        onClose={() => setIsPostSuccessOpen(false)}
+      />
+    </>
   );
 }

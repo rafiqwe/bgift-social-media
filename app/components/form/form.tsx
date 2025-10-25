@@ -1,10 +1,11 @@
 "use client";
 
 import { signInSocialMedia } from "@/app/action/authAciton";
+// import { auth } from "@/lib/auth";
 import { FacebookIcon, Github } from "lucide-react";
 import Image from "next/image";
 
-export default function SignInForm() {
+export default  function SignInForm() {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen px-4">
       {/* Title */}
