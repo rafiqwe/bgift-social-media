@@ -6,6 +6,7 @@ interface ICommentMenuProps {
   isOwnComment: boolean;
   commentId: string;
   onEditMenu: () => void;
+  onCommentReportOpen: () => void;
   onDeleteMenu: () => void;
 }
 
@@ -14,14 +15,13 @@ const CommentMenuOpen: React.FC<ICommentMenuProps> = ({
   commentId,
   onEditMenu,
   onDeleteMenu,
+  onCommentReportOpen,
 }) => {
-
-
   const handleCommentEdit = () => {
     onEditMenu();
   };
   const handleCommentDelete = () => {
-    onDeleteMenu()
+    onDeleteMenu();
   };
   return (
     <div className="absolute right-0 mt-2 w-36 bg-white shadow-lg rounded-lg border border-gray-200 z-10 overflow-hidden">
@@ -41,11 +41,12 @@ const CommentMenuOpen: React.FC<ICommentMenuProps> = ({
           </button>
         </div>
       )}
-      <button className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100">
+      <button
+        onClick={() => onCommentReportOpen()}
+        className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
+      >
         🚩 Report
       </button>
-
-     
     </div>
   );
 };
