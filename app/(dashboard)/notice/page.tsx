@@ -1,8 +1,10 @@
+import React from 'react'
+import NotFound from '../not-found'
 
-const page = () => {
+const NoticePage = () => {
   return (
-    <div>Collage notice page we will build soon</div>
+    <NotFound />
   )
 }
 
-export default page
+export default NoticePage
