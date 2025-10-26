@@ -1,8 +1,9 @@
 import React from 'react'
+import NotFound from '../not-found'
 
 const page = () => {
   return (
-    <div>This is setting page you will change you setting. We build soon</div>
+    <NotFound/>
   )
 }
 
