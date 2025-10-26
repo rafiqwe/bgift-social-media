@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import Navbar from "../components/layout/Navbar";
 import Sidebar from "../components/layout/Sidebar";
 import RightSidebar from "../components/layout/RightSidebar";
+import ReportBugs from "../components/reportBug/reportBugs";
 
 export default async function DashboardLayout({
   children,
@@ -18,9 +19,9 @@ export default async function DashboardLayout({
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-100 to-gray-200 text-gray-900">
       {/* Top Navigation */}
+      <ReportBugs/>
       <Navbar />
-
-      <div className="max-w-7xl mx-auto pt-16">
+      <div className="max-w-7xl mx-auto pt-26">
         <div className="flex gap-6 px-4 py-6">
           {/* Left Sidebar - Hidden on mobile */}
           <aside className="hidden lg:block w-64 flex-shrink-0">
