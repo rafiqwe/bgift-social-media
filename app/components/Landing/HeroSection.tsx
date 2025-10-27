@@ -23,7 +23,7 @@ const HeroSection = () => {
       </div>
 
       {/* ✨ Gradient Aura */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[700px] bg-gradient-to-tr from-indigo-500/30 to-purple-600/20 blur-[160px] rounded-full z-0" />
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[370px] sm:w-[400px] md:w-[600px] h-[700px] bg-gradient-to-tr from-indigo-500/30 to-purple-600/20 blur-[160px] rounded-full z-0" />
 
       {/* 🧠 Headline */}
       <motion.h1
