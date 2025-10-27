@@ -35,6 +35,7 @@ interface PostCardProps {
     content: string;
     imageUrl: string | null;
     createdAt: string;
+    isUpdated: boolean;
     author: {
       id: string;
       name: string;
@@ -55,7 +56,7 @@ interface PostCardProps {
 export default function PostCard({
   post,
   handlePostDeleteFromProfile,
-  isProfile = false
+  isProfile = false,
 }: PostCardProps) {
   // Likes
   const [isLiked, setIsLiked] = useState(post.isLikedByUser);
@@ -184,7 +185,7 @@ export default function PostCard({
         // const data = res.data;
         setIsPostSuccessMessage("Your post has been deleted successfully!");
         setIsPostSuccessOpen(true);
-        if(isProfile){
+        if (isProfile) {
           handlePostDeleteFromProfile(updatedPost.id);
         }
         removePost(updatedPost.id);
@@ -223,6 +224,13 @@ export default function PostCard({
                 {formatDistanceToNow(new Date(updatedPost.createdAt), {
                   addSuffix: true,
                 })}
+                <p>
+                  {updatedPost.isUpdated && (
+                    <span className="text-xs text-gray-400 italic">
+                      (Edited)
+                    </span>
+                  )}
+                </p>
               </p>
             </div>
           </div>
