@@ -131,7 +131,7 @@ export default function PostUpdateModal({
                   className="flex items-center gap-2 px-3 py-2 text-sm rounded-lg border border-gray-200 bg-gray-100 hover:bg-gray-200 transition cursor-pointer"
                 >
                   <ImageIcon className="w-4 h-4" />
-                  Change Image
+                  {preview === "" ? "Add" : "Update"} Image
                 </button>
                 <input
                   ref={fileInputRef}
