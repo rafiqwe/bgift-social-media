@@ -102,7 +102,7 @@ model Post {
   id        String   @id @default(cuid())
   content   String
   imageUrl  String? // Optional image for posts
-  isUpdated Boolean? @default(false)
+  isUpdated Boolean  @default(false)
   authorId  String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
