@@ -3,6 +3,7 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { NextRequest, NextResponse } from "next/server";
 import cloudinary from "cloudinary";
+import { AddImageOnCloudinary } from "@/lib/AddImageOnCloudinary";
 
 // ✅ Cloudinary response type
 interface CloudinaryUploadResult {
@@ -214,25 +215,27 @@ export async function PUT(req: NextRequest) {
     }
 
     if (updateImage && updateImage instanceof File) {
-      // Convert browser File to ArrayBuffer
-      const bytes = await updateImage.arrayBuffer();
-      const buffer = Buffer.from(bytes);
+      // // Convert browser File to ArrayBuffer
+      // const bytes = await updateImage.arrayBuffer();
+      // const buffer = Buffer.from(bytes);
 
-      const uploadResult = await new Promise<cloudinary.UploadApiResponse>(
-        (resolve, reject) => {
-          const uploadStream = cloudinary.v2.uploader.upload_stream(
-            { folder: "bgift-image" },
-            (error, result) => {
-              if (error) reject(error);
-              else resolve(result as cloudinary.UploadApiResponse);
-            }
-          );
+      // const uploadResult = await new Promise<cloudinary.UploadApiResponse>(
+      //   (resolve, reject) => {
+      //     const uploadStream = cloudinary.v2.uploader.upload_stream(
+      //       { folder: "bgift-image" },
+      //       (error, result) => {
+      //         if (error) reject(error);
+      //         else resolve(result as cloudinary.UploadApiResponse);
+      //       }
+      //     );
 
-          uploadStream.end(buffer); // ✅ send Buffer
-        }
-      );
+      //     uploadStream.end(buffer); // ✅ send Buffer
+      //   }
+      // );
 
-      updatedImageUrl = uploadResult.secure_url;
+      // updatedImageUrl = uploadResult.secure_url;
+
+      updatedImageUrl = await AddImageOnCloudinary(updateImage);
     }
 
     // Check if post exists and user is the author
@@ -259,6 +262,7 @@ export async function PUT(req: NextRequest) {
       data: {
         content,
         imageUrl: updatedImageUrl || existingPost.imageUrl, // Keep existing image if not provided
+        isUpdated: true,
       },
       include: {
         author: {
