@@ -224,13 +224,13 @@ export default function PostCard({
                 {formatDistanceToNow(new Date(updatedPost.createdAt), {
                   addSuffix: true,
                 })}
-                <p>
+                <span>
                   {updatedPost.isUpdated && (
                     <span className="text-xs text-gray-400 italic">
                       (Edited)
                     </span>
                   )}
-                </p>
+                </span>
               </p>
             </div>
           </div>
