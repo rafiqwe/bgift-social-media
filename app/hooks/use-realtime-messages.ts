@@ -36,6 +36,7 @@ export function useRealtimeMessages(
       if (!res.ok) throw new Error("Failed to fetch messages");
 
       const data = await res.json();
+      localStorage.setItem("messages", JSON.stringify(data.messages));
       setMessages(data.messages);
 
       // Mark messages as read
@@ -78,7 +79,10 @@ export function useRealtimeMessages(
 
         // Emit to other users via socket
         socket.emit("message:send", { conversationId, message: newMessage });
-
+        socket.emit("message:sendNotification", {
+          conversationId,
+          message: newMessage,
+        });
         return true;
       } catch (error) {
         console.error("Error sending message:", error);
