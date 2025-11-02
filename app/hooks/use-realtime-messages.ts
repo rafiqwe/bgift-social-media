@@ -36,7 +36,10 @@ export function useRealtimeMessages(
       if (!res.ok) throw new Error("Failed to fetch messages");
 
       const data = await res.json();
-      localStorage.setItem("messages", JSON.stringify(data.messages));
+      localStorage.setItem(
+        `messages_${conversationId}`,
+        JSON.stringify(data.messages)
+      );
       setMessages(data.messages);
 
       // Mark messages as read
@@ -61,21 +64,22 @@ export function useRealtimeMessages(
       if (!conversationId || !content.trim() || !socket) return false;
 
       try {
+        
+        
         setIsSending(true);
-
         const res = await fetch("/api/messages/send", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ conversationId, content }),
         });
-
+        
         if (!res.ok) throw new Error("Failed to send message");
-
+        
         const data = await res.json();
         const newMessage = data.message;
+        setMessages((prev) => [...prev, newMessage]);
 
         // Add to local state
-        setMessages((prev) => [...prev, newMessage]);
 
         // Emit to other users via socket
         socket.emit("message:send", { conversationId, message: newMessage });
