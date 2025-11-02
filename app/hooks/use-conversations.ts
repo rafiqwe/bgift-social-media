@@ -38,8 +38,8 @@ export function useConversations() {
       const data = await res.json();
       localStorage.setItem("conversations", JSON.stringify(data.conversations));
       setConversations(data.conversations);
-      console.log('from ', data);
-      
+      console.log("from  conversation hook:", data);
+
       // data.conversations.map((data) => {
       //   setUnReadCount(data.unreadCount);
       // });
