@@ -22,6 +22,7 @@ export default function MessageBubble({
   message,
   isOwnMessage,
 }: MessageBubbleProps) {
+
   return (
     <div
       className={`flex gap-2 ${isOwnMessage ? "flex-row-reverse" : "flex-row"}`}
