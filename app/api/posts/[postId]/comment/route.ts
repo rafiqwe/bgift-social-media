@@ -5,11 +5,11 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: { postId: string } }
+  context: { params: Promise<{ postId: string }> }
 ) {
   try {
     const session = await auth();
-    const postId = params.postId;
+    const postId = await context.params.postId;
     const comment = await req.json();
 
     if (!session?.user?.email) {
@@ -83,11 +83,11 @@ export async function POST(
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { postId: string } }
+  context: { params: Promise<{ postId: string }> }
 ) {
   try {
     const session = await auth();
-    const postId = params.postId;
+    const postId = await context.params.postId;
 
     if (!session?.user?.email) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

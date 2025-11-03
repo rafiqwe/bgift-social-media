@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { conversationId: string } }
+  { params }: { params: Promise<{ conversationId: string }> }
 ) {
   try {
     const session = await auth();
@@ -75,8 +75,16 @@ export async function GET(
     // Reverse to show oldest first
     messages.reverse();
 
+    const formattedMessages = messages.map((msg) => ({
+      id: msg.id,
+      content: msg.content,
+      createdAt: msg.createdAt,
+      sender: msg.sender,
+      isOwnMessage: msg.senderId === currentUser.id,
+    }));
+
     return NextResponse.json({
-      messages,
+      messages: formattedMessages,
       nextCursor,
       hasMore,
     });

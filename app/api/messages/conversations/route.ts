@@ -75,6 +75,9 @@ export async function GET() {
       participant: conv.conversation.participants[0]?.user,
       lastMessage: conv.conversation.messages[0] || null,
       unreadCount: conv.conversation._count.messages,
+      isOwnMessage: conv.conversation.messages[0]
+        ? conv.conversation.messages[0].senderId === currentUser.id
+        : false,
       updatedAt: conv.conversation.updatedAt,
     }));
 

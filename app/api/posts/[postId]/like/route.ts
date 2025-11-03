@@ -6,7 +6,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: { postId: string } }
+  context: { params: Promise<{ postId: string }> }
 ) {
   try {
     const session = await auth();
@@ -23,7 +23,7 @@ export async function POST(
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    const postId = params.postId;
+    const postId = await context.params.postId;
 
     // Check if post exists
     const post = await prisma.post.findUnique({
@@ -104,10 +104,10 @@ export async function POST(
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { postId: string } }
+  context: { params: Promise<{ postId: string }> }
 ) {
   try {
-    const postId = params.postId;
+    const postId = await context.params.postId;
 
     // ✅ Check if post exists
     const post = await prisma.post.findUnique({

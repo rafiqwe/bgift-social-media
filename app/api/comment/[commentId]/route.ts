@@ -5,7 +5,7 @@ import { NextRequest, NextResponse } from "next/server";
 // ✅ PUT: Update comment
 export async function PUT(
   req: NextRequest,
-  context: { params: { commentId: string } }
+  context: { params: Promise<{ commentId: string }> }
 ) {
   try {
     const session = await auth();
@@ -77,7 +77,7 @@ export async function PUT(
 // ✅ DELETE: Delete comment
 export async function DELETE(
   req: NextRequest,
-  context: { params: { commentId: string } }
+  context: { params: Promise<{ commentId: string }> }
 ) {
   try {
     const session = await auth();

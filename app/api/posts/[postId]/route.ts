@@ -4,11 +4,11 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { postId: string } }
+  context: { params: Promise<{ postId: string }> }
 ) {
   try {
     const session = await auth();
-    const { postId } = params;
+    const postId = await context.params.postId;
 
     // ✅ Check for authenticated user
     if (!session?.user) {
@@ -72,9 +72,7 @@ export async function GET(
     }
 
     // ✅ Add custom fields
-    const isLikedByUser = post.likes.some(
-      (like) => like.userId === user.id
-    );
+    const isLikedByUser = post.likes.some((like) => like.userId === user.id);
     const isOwnPost = post.author.id === user.id;
 
     return NextResponse.json({
