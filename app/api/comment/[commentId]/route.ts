@@ -2,16 +2,16 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { NextRequest, NextResponse } from "next/server";
 
+// ✅ PUT: Update comment
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { commentId: string } }
+  context: { params: { commentId: string } }
 ) {
   try {
     const session = await auth();
-    const commentId =  params.commentId
-    const { content} = await req.json();
-    console.log(content);
-    
+    const commentId = context.params.commentId;
+    const { content } = await req.json();
+
     if (!session?.user?.email) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -24,18 +24,13 @@ export async function PUT(
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    // ✅ Validate comment text
-    if (
-      !content ||
-      (typeof content === "string" && content.trim() === "")
-    ) {
+    if (!content || (typeof content === "string" && content.trim() === "")) {
       return NextResponse.json(
         { error: "Comment text is required" },
         { status: 400 }
       );
     }
 
-    // ✅ Find comment
     const comment = await prisma.comment.findUnique({
       where: { id: commentId },
     });
@@ -44,7 +39,6 @@ export async function PUT(
       return NextResponse.json({ error: "Comment not found" }, { status: 404 });
     }
 
-    // ✅ Ensure comment belongs to current user
     if (comment.authorId !== user.id) {
       return NextResponse.json(
         { error: "You can only edit your own comments" },
@@ -52,7 +46,6 @@ export async function PUT(
       );
     }
 
-    // ✅ Update comment
     const updatedComment = await prisma.comment.update({
       where: { id: commentId },
       data: {
@@ -81,13 +74,14 @@ export async function PUT(
   }
 }
 
+// ✅ DELETE: Delete comment
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { commentId: string } }
+  context: { params: { commentId: string } }
 ) {
   try {
     const session = await auth();
-    const commentId = params.commentId;
+    const commentId = context.params.commentId;
 
     if (!session?.user?.email) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -101,8 +95,6 @@ export async function DELETE(
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-
-    // ✅ Find comment
     const comment = await prisma.comment.findUnique({
       where: { id: commentId },
     });
@@ -111,7 +103,6 @@ export async function DELETE(
       return NextResponse.json({ error: "Comment not found" }, { status: 404 });
     }
 
-    // ✅ Ensure comment belongs to current user
     if (comment.authorId !== user.id) {
       return NextResponse.json(
         { error: "You can only delete your own comments" },
@@ -119,7 +110,6 @@ export async function DELETE(
       );
     }
 
-    // ✅ Delete comment
     const deletedComment = await prisma.comment.delete({
       where: { id: commentId },
       include: {
