@@ -14,8 +14,11 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "BGIFT Social Media",
-  description: "Connect, share, and engage with the BGIFT community on our social media platform.",
-  icons: '/images/bgift-favicon.ico'
+  description:
+    "Connect, share, and engage with the BGIFT community on our social media platform.",
+  icons: {
+    icon: "/image/bgift-favicon.ico",
+  },
 };
 
 export default function RootLayout({
