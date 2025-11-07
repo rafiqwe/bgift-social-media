@@ -1,10 +1,10 @@
-import { prisma } from "@/lib/auth"
 import {
   Adapter,
   AdapterUser,
   AdapterSession,
 } from "next-auth/adapters"
 import { Account } from "next-auth"
+import { prisma } from "@/lib/db"
 
 export const CustomAdapter: Adapter = {
   // Create user
@@ -56,7 +56,7 @@ export const CustomAdapter: Adapter = {
 
   // Link provider account
   async linkAccount(account: Account): Promise<void> {
-    await prisma.account.create({ data: account as any })
+    await prisma.account.create({ data: account})
   },
 
   // Create session
