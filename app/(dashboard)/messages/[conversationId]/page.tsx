@@ -13,6 +13,25 @@ import ConversationList from "@/app/components/messages/conversation-list";
 import useUser from "@/app/hooks/use-user";
 import useLocalStore from "@/app/hooks/use-localStore";
 
+interface OtherUserI {
+  id: string;
+  name: string;
+  image: string | null;
+}
+
+interface LocalMessageI {
+  id: string;
+  isOwnMessage: boolean;
+  content: string;
+  createdAt: string;
+  senderId: string;
+  sender: {
+    id: string;
+    name: string;
+    image: string | null;
+  };
+}
+
 export default function RealtimeConversationPage() {
   const params = useParams();
   const router = useRouter();
@@ -20,11 +39,12 @@ export default function RealtimeConversationPage() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const { currentUserId } = useUser();
+  console.log("current user id form realtime message:", currentUserId);
 
   const { socket, isConnected } = useSocket(currentUserId);
   const { isUserOnline } = useOnlineStatus(socket);
 
-  const { localMessages } = useLocalStore();
+  const { localMessages } = useLocalStore({ conversationId });
   const {
     messages,
     isLoading,
@@ -35,7 +55,7 @@ export default function RealtimeConversationPage() {
     stopTyping,
   } = useRealtimeMessages(socket, conversationId, currentUserId);
 
-  const [otherUser, setOtherUser] = useState<any>(null);
+  const [otherUser, setOtherUser] = useState<OtherUserI | null>(null);
 
   // Fetch conversation details
   useEffect(() => {
@@ -47,6 +67,7 @@ export default function RealtimeConversationPage() {
           body: JSON.stringify({ participantId: conversationId }),
         });
         const data = await res.json();
+
         setOtherUser(data.participant);
       } catch (error) {
         console.error("Error fetching conversation:", error);
@@ -147,7 +168,7 @@ export default function RealtimeConversationPage() {
                   <MessageBubble
                     key={message.id}
                     message={message}
-                    isOwnMessage={message.senderId === currentUserId}
+                    isOwnMessage={message.isOwnMessage}
                   />
                 ))}
               </>
@@ -162,7 +183,7 @@ export default function RealtimeConversationPage() {
                 <MessageBubble
                   key={message.id}
                   message={message}
-                  isOwnMessage={message.senderId === currentUserId}
+                  isOwnMessage={message.sender.id === currentUserId}
                 />
               ))}
 
