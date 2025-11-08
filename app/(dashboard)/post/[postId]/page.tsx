@@ -21,13 +21,14 @@ interface Post {
     bio: string | null;
   };
   likes: { userId: string }[];
-  comments: any[];
+  comments: [];
   _count: {
     likes: number;
     comments: number;
   };
   isLikedByUser: boolean;
   isOwnPost: boolean;
+  isUpdated: boolean;
 }
 
 const Page = ({ params }: PageProps) => {
