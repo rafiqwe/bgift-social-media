@@ -9,7 +9,7 @@ export default async function FeedPage() {
     <div className="max-w-2xl mx-auto py-6 px-4">
       {/* Create Post Form */}
       <div className="mb-6">
-        <PostForm image={session?.user.image} />
+        <PostForm image={session?.user.image || '/default-avatar.png'} />
       </div>
       {/* Posts Feed */}
       <PostFeed/>
