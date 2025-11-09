@@ -6,6 +6,7 @@ import Image from "next/image";
 import { formatDistanceToNow } from "date-fns";
 import PostCard from "@/app/components/post/PostCard";
 import EditProfileModal from "@/app/components/profile/edit-profile-modal";
+import MessageButton from "@/app/components/messages/message-button";
 
 interface UserProfile {
   id: string;
@@ -38,6 +39,7 @@ interface PostI {
   };
   isLikedByUser: boolean;
   isOwnPost: boolean;
+  isUpdated: boolean;
 }
 
 export default function ProfilePage() {
@@ -82,8 +84,6 @@ export default function ProfilePage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ receiverId: userId }),
       });
-
-      // if (res.ok)
     } catch (error) {
       console.error("Error sending friend request:", error);
     }
@@ -175,6 +175,9 @@ export default function ProfilePage() {
                 )}
               </>
             )}
+            {!profile.isOwnProfile && (
+              <MessageButton userId={userId} userName={profile.name} />
+            )}
           </div>
 
           {/* Bio */}
@@ -244,7 +247,7 @@ export default function ProfilePage() {
                     handlePostDeleteFromProfile={handlePostDelete}
                     isProfile={true}
                   />
-                ))  
+                ))
               )}
             </div>
           )}
