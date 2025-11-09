@@ -101,11 +101,9 @@ export default function ReportBug() {
       } else {
         setError(res.data?.error || "Something went wrong. Try again.");
       }
-    } catch (err: any) {
+    } catch (err) {
       console.error("Report error:", err);
-      setError(
-        err?.response?.data?.error || err.message || "Failed to send report"
-      );
+      setError("Failed to send report");
     } finally {
       setIsSubmitting(false);
     }
