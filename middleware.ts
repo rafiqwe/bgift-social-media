@@ -1,23 +1,17 @@
-import { auth } from "@/lib/auth";
 import { NextResponse } from "next/server";
+import { auth } from "@/lib/auth";
 
 export default auth((req) => {
-  const isLoggedIn = !!req.auth;
-  const pathname = req.nextUrl.pathname;
+  const { pathname } = req.nextUrl;
+  const loggedIn = !!req.auth;
+  const authPage = ["/login", "/register"].some((p) => pathname.startsWith(p));
+  const publicPage = pathname === "/" || authPage;
 
-  const isAuthPage =
-    pathname.startsWith("/login") || pathname.startsWith("/register");
-  const isPublicPage = pathname === "/" || isAuthPage;
-
-  // 🔹 If logged in, redirect away from "/" or auth pages
-  if (isLoggedIn && isPublicPage) {
+  if (loggedIn && publicPage)
     return NextResponse.redirect(new URL("/feed", req.url));
-  }
 
-  // 🔹 If not logged in, redirect to login (protect all except public pages)
-  if (!isLoggedIn && !isPublicPage) {
+  if (!loggedIn && !publicPage)
     return NextResponse.redirect(new URL("/login", req.url));
-  }
 
   return NextResponse.next();
 });
