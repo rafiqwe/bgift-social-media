@@ -1,8 +1,26 @@
 import React, { useEffect, useState } from "react";
+interface OtherUserI {
+  id: string;
+  name: string;
+  image: string | null;
+}
+
+interface LocalMessageI {
+  id: string;
+  isOwnMessage: boolean;
+  content: string;
+  createdAt: string;
+  senderId: string;
+  sender: {
+    id: string;
+    name: string;
+    image: string | null;
+  };
+}
 
 const useLocalStore = ({ conversationId } = {}) => {
-  const [localMessages, setLocalMessages] = useState([]);
-  const [localConversation, setLocalConversation] = useState([]);
+  const [localMessages, setLocalMessages] = useState<LocalMessageI[]>([]);
+  const [localConversation, setLocalConversation] = useState<OtherUserI[]>([]);
 
   useEffect(() => {
     try {
