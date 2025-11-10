@@ -15,7 +15,11 @@ interface Post {
     bio: string | null;
   };
   likes: { userId: string }[];
-  comments: any[];
+  comments: {
+    id: string;
+    content: string;
+    createdAt: string;
+  }[];
   _count: {
     likes: number;
     comments: number;
