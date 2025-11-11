@@ -6,9 +6,10 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import axios from "axios";
 import PostSuccessModal from "../../Notification/NotificationModal2";
-import data from "@emoji-mart/data";
-import Picker from "@emoji-mart/react";
+
 import { CameraIcon, SmileIcon } from "lucide-react";
+import { log } from "console";
+import EmojiPicker from "emoji-picker-react";
 interface IImageprops {
   image: string;
 }
@@ -135,10 +136,11 @@ export default function PostForm({ image }: IImageprops) {
                 </button>
                 {isEmojiOpen && (
                   <div className="absolute z-10 mt-2">
-                    <Picker
-                      data={data}
-                      onEmojiSelect={(emoji: { native: string }) => {
-                        setContent(content + emoji.native);
+                    <EmojiPicker
+                      emojiStyle="facebook"
+                      onEmojiClick={(emojiObject, event) => {
+                        const selectedEmoji = emojiObject.emoji;
+                        setContent(content + selectedEmoji);
                         setIsEmojiOpen(false);
                       }}
                     />
