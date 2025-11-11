@@ -59,10 +59,7 @@ export async function POST(req: NextRequest) {
 
     if (existingRequest) {
       if (existingRequest.status === "ACCEPTED") {
-        return NextResponse.json(
-          { error: "Already friends" },
-          { status: 400 }
-        );
+        return NextResponse.json({ error: "Already friends" }, { status: 400 });
       } else if (existingRequest.status === "PENDING") {
         return NextResponse.json(
           { error: "Friend request already sent" },
@@ -95,6 +92,16 @@ export async function POST(req: NextRequest) {
             image: true,
           },
         },
+      },
+    });
+
+    const sentNotification = await prisma.notification.create({
+      data: {
+        userId: receiverId,
+        fromUserId: currentUser.id,
+        type: "FRIEND_REQUEST",
+        message: `sent you a friend request.`,
+        link: `/profile/${currentUser.id}`,
       },
     });
 

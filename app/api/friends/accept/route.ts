@@ -83,6 +83,16 @@ export async function POST(req: NextRequest) {
       },
     });
 
+    const AcceptedNotification = await prisma.notification.create({
+      data: {
+        userId: friendRequest.requesterId,
+        fromUserId: currentUser.id,
+        type: "FRIEND_ACCEPT",
+        message: `accepted your friend request.`,
+        link: `/profile/${currentUser.id}`,
+      },
+    });
+
     return NextResponse.json({
       message: "Friend request accepted",
       friendRequest: updatedRequest,

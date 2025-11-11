@@ -9,7 +9,7 @@ import { AddImageOnCloudinary } from "@/lib/AddImageOnCloudinary";
 interface CloudinaryUploadResult {
   public_id: string;
   secure_url: string;
-  [key: string]: any;
+  [key: string]: string;
 }
 
 cloudinary.v2.config({
