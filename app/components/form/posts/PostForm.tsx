@@ -6,12 +6,16 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import axios from "axios";
 import PostSuccessModal from "../../Notification/NotificationModal2";
+import data from "@emoji-mart/data";
+import Picker from "@emoji-mart/react";
+import { CameraIcon, SmileIcon } from "lucide-react";
 interface IImageprops {
   image: string;
 }
 export default function PostForm({ image }: IImageprops) {
   const [content, setContent] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isEmojiOpen, setIsEmojiOpen] = useState(false);
   const [isPostSuccessOpen, setIsPostSuccessOpen] = useState(false);
   const [isPostSuccessMessage, setIsPostSuccessMessage] = useState("");
   const [preview, setPreview] = useState<string | null>(null);
@@ -65,7 +69,7 @@ export default function PostForm({ image }: IImageprops) {
         initial={{ opacity: 0, y: 15 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
-        className="bg-white/80 backdrop-blur-md rounded-2xl shadow-md border border-gray-200 
+        className="bg-white/80 backdrop-blur-md  md:rounded-2xl  shadow-md border border-gray-200 
                  p-4 mb-5 transition hover:shadow-lg"
       >
         <div className="flex items-start gap-3">
@@ -83,6 +87,7 @@ export default function PostForm({ image }: IImageprops) {
             <textarea
               value={content}
               onChange={(e) => setContent(e.target.value)}
+              onClick={() => setIsEmojiOpen(false)}
               placeholder="Share your thoughts..."
               className="w-full p-3 text-gray-700 border rounded-xl resize-none
                        focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white/70"
@@ -113,7 +118,7 @@ export default function PostForm({ image }: IImageprops) {
             <div className="flex items-center justify-between mt-3">
               <div className="flex gap-3 text-gray-600">
                 <label className="flex items-center gap-1 px-3 py-1 text-sm rounded-lg hover:bg-gray-100 transition cursor-pointer">
-                  📷 Photo
+                  <CameraIcon size={18} /> Photo
                   <input
                     type="file"
                     accept="image/*"
@@ -123,10 +128,22 @@ export default function PostForm({ image }: IImageprops) {
                 </label>
                 <button
                   type="button"
+                  onClick={() => setIsEmojiOpen(true)}
                   className="flex items-center gap-1 px-3 py-1 text-sm rounded-lg hover:bg-gray-100 transition"
                 >
-                  😀 Emoji
+                  <SmileIcon size={18} /> Emoji
                 </button>
+                {isEmojiOpen && (
+                  <div className="absolute z-10 mt-2">
+                    <Picker
+                      data={data}
+                      onEmojiSelect={(emoji: { native: string }) => {
+                        setContent(content + emoji.native);
+                        setIsEmojiOpen(false);
+                      }}
+                    />
+                  </div>
+                )}
               </div>
 
               <motion.button
