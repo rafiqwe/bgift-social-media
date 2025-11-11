@@ -17,7 +17,7 @@ export const metadata: Metadata = {
   description:
     "Connect, share, and engage with the BGIFT community on our social media platform.",
   icons: {
-    icon: "/image/bgift-favicon.ico",
+    icon: "/images/bgift-favicon.ico",
   },
 };
 
