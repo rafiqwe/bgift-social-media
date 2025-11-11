@@ -78,7 +78,7 @@ export default function NotificationList() {
                 onClick={() => markAsRead(n.id)}
                 className="text-blue-600 text-sm font-medium hover:underline mt-1 inline-block"
               >
-                View details →
+                View {n.post ? "details" : "Profile"} → 
               </Link>
             )}
 
