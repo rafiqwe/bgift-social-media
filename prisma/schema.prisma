@@ -297,7 +297,8 @@ enum ConversationType {
 enum NotificationType {
   LIKE
   COMMENT
-  FOLLOW
+  FRIEND_REQUEST
+  FRIEND_ACCEPT
   MENTION
   REPORT
   SYSTEM
