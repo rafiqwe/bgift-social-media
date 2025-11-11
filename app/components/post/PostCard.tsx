@@ -35,7 +35,6 @@ interface PostCardProps {
     content: string;
     imageUrl: string | null;
     createdAt: string;
-    isUpdated: boolean;
     author: {
       id: string;
       name: string;
@@ -48,6 +47,7 @@ interface PostCardProps {
     };
     isLikedByUser: boolean;
     isOwnPost: boolean;
+    isUpdated: boolean;
   };
   handlePostDeleteFromProfile?: (postId: string) => void;
   isProfile?: boolean;
@@ -198,18 +198,19 @@ export default function PostCard({
   };
 
   return (
-    <div className="bg-white rounded-lg shadow p-6">
+    <div className="bg-white md:rounded-lg shadow md:p-6 px-4 py-5">
       {/* Author */}
       <div className="flex items-center gap-3 justify-between">
         <Link href={`/profile/${post.author.id}`}>
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-200">
+          <div className="flex items-center gap-[8px] md:gap-3 mb-4">
+            <div className="w-10 h-10 basis-12 md:basis-none rounded-full overflow-hidden bg-gray-200">
               {updatedPost.author.image ? (
                 <Image
                   src={updatedPost.author.image}
                   alt={updatedPost.author.name}
                   width={40}
                   height={40}
+                  className=" w-10 h-10"
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center bg-blue-500 text-white font-bold">
@@ -217,13 +218,15 @@ export default function PostCard({
                 </div>
               )}
             </div>
-            <div>
-              <p className="font-semibold">{updatedPost.author.name}</p>
-              <p className="text-sm text-gray-500">
+            <div className="w-full">
+              <p className="font-semibold text-md">{updatedPost.author.name}</p>
+              <p className="md:text-sm text-xs text-gray-500 text-wrap">
                 @{updatedPost.author.username} •{" "}
-                {formatDistanceToNow(new Date(updatedPost.createdAt), {
-                  addSuffix: true,
-                })}
+                <span className="inline-block md:inline">
+                  {formatDistanceToNow(new Date(updatedPost.createdAt), {
+                    addSuffix: true,
+                  })}
+                </span>
                 <span>
                   {updatedPost.isUpdated && (
                     <span className="text-xs text-gray-400 italic">
