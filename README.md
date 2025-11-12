@@ -1,39 +1,59 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# BGIFT - Connect Smarter. Grow Together.
 
-## Getting Started
+![BGIFT App Preview](https://bgift-social-media.vercel.app/bgift-preview.png)  
+*(Live App: [https://bgift-social-media.vercel.app](https://bgift-social-media.vercel.app))*
 
-First, run the development server:
+BGIFT is your **next-generation social network** — powered by AI to help you build meaningful connections, share your voice, and inspire others.
+
+[![Deploy to Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/yourusername/bgift-social-media)
+
+---
+
+## ✨ Features
+
+| Feature | Description |
+|-------|-----------|
+| **Smart Feed** | AI-curated content that connects you with topics and people that truly matter. |
+| **Real-Time Insights** | Engagement metrics & data-driven growth analytics to track your impact. |
+| **Privacy Focused** | Full control over your data, visibility, and who sees your content. |
+
+---
+
+## 🚀 Live Demo
+
+👉 [**https://bgift-social-media.vercel.app**](https://bgift-social-media.vercel.app)
+
+> Join today and become part of an intelligent, vibrant community that celebrates **authentic connections**.
+
+---
+
+## 🛠 Tech Stack
+
+| Layer | Technology |
+|------|------------|
+| **Framework** | [Next.js](https://nextjs.org) (App Router) |
+| **Styling** | [Tailwind CSS](https://tailwindcss.com) |
+| **Database** | **PostgreSQL** via [Neon](https://neon.tech) |
+| **ORM** | [Prisma](https://prisma.io) |
+| **Authentication** | [NextAuth.js](https://next-auth.js.org) |
+| **AI Features** | OpenAI / Custom recommendation engine |
+| **Deployment** | [Vercel](https://vercel.com) |
+| **Real-time** | WebSockets / Server-Sent Events (optional) |
+
+---
+
+## 📦 Getting Started
+
+### Prerequisites
+- Node.js ≥18
+- PostgreSQL (via [Neon](https://neon.tech))
+- Git
+
+---
+
+### 1. Clone & Install
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-
-
-###BGFIT Social Media
+git clone https://github.com/yourusername/bgift-social-media.git
+cd bgift-social-media
+npm install
