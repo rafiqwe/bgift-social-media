@@ -25,8 +25,8 @@ const NotFound = () => {
             Coming Soon!
           </h1>
           <p className="text-lg text-gray-900 text-center mb-8">
-            We're working hard to bring you this page. Stay tuned for something
-            awesome!
+            We{`'`}re working hard to bring you this page. Stay tuned for
+            something awesome!
           </p>
           <div className="flex w-full mx-auto justify-center">
             <button
