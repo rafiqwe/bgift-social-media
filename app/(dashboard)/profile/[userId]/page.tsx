@@ -114,98 +114,105 @@ export default function ProfilePage() {
 
         {/* Profile Info */}
         <div className="relative px-4 sm:px-6 pb-6 sm:pb-8">
-          {/* Avatar */}
-          <div className="">
-            <div className="w-28 absolute top-0 -translate-y-1/2 sm:left-1/2 left-20 transform -translate-x-1/2 h-28 sm:w-32 sm:h-32 rounded-full border-4 border-white shadow-lg overflow-hidden bg-gray-200">
-              {profile.image ? (
-                <Image
-                  src={profile.image}
-                  alt={profile.name}
-                  width={128}
-                  height={128}
-                  className="w-full  h-full object-cover"
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center bg-indigo-500 text-white text-3xl sm:text-4xl font-bold">
-                  {profile.name.charAt(0)}
-                </div>
+          <div>
+            {/* Avatar */}
+            <div className="">
+              <div className="w-28 absolute top-0 -translate-y-1/2 left-1/2  transform -translate-x-1/2 h-28 sm:w-32 sm:h-32 rounded-full border-4 border-white shadow-lg overflow-hidden bg-gray-200">
+                {profile.image ? (
+                  <Image
+                    src={profile.image}
+                    alt={profile.name}
+                    width={128}
+                    height={128}
+                    className="w-full  h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center bg-indigo-500 text-white text-3xl sm:text-4xl font-bold">
+                    {profile.name.charAt(0)}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Name + Username */}
+            <div className=" pt-20 flex items-center justify-center flex-col text-center sm:text-left">
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
+                {profile.name}
+              </h1>
+              <p className="text-gray-500">@{profile.username}</p>
+            </div>
+
+            <div className="flex items-center justify-center w-full">
+              {/* Bio */}
+              {profile.bio && (
+                <p className="mt-4 text-gray-700 max-w-full md:text-center sm:max-w-xl text-center sm:text-left">
+                  {profile.bio}
+                </p>
               )}
             </div>
-          </div>
 
-          {/* Name + Username */}
-          <div className=" pt-20 sm:ml-36 text-center sm:text-left">
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
-              {profile.name}
-            </h1>
-            <p className="text-gray-500">@{profile.username}</p>
-          </div>
-
-          {/* Actions */}
-          <div className="absolute top-4 right-4 sm:top-6 sm:right-6">
-            {profile.isOwnProfile ? (
-              <button
-                onClick={() => setIsEditModalOpen(true)}
-                className="px-4 sm:px-5 py-2 sm:py-2.5 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition text-sm sm:text-base"
-              >
-                Edit Profile
-              </button>
-            ) : (
-              <>
-                {profile.friendshipStatus === "none" && (
-                  <button
-                    onClick={handleAddFriend}
-                    className="px-4 sm:px-5 py-2 sm:py-2.5 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition text-sm sm:text-base"
-                  >
-                    Add Friend
-                  </button>
-                )}
-                {profile.friendshipStatus === "pending" && (
-                  <button
-                    disabled
-                    className="px-4 sm:px-5 py-2 sm:py-2.5 bg-gray-400 text-white rounded-lg font-medium cursor-not-allowed text-sm sm:text-base"
-                  >
-                    Request Sent
-                  </button>
-                )}
-                {profile.friendshipStatus === "accepted" && (
-                  <button className="px-4 sm:px-5 py-2 sm:py-2.5 bg-green-600 text-white rounded-lg font-medium text-sm sm:text-base">
-                    Friends
-                  </button>
-                )}
-              </>
-            )}
-            {!profile.isOwnProfile && (
-              <MessageButton userId={userId} userName={profile.name} />
-            )}
-          </div>
-
-          {/* Bio */}
-          {profile.bio && (
-            <p className="mt-4 text-gray-700 max-w-full sm:max-w-xl text-center sm:text-left">
-              {profile.bio}
-            </p>
-          )}
-
-          {/* Stats */}
-          <div className="flex flex-wrap  justify-center sm:justify-start gap-6 mt-6 text-center sm:text-left md:text-center">
-            <div>
-              <p className="text-xl sm:text-2xl font-bold text-gray-900">
-                {profile._count.posts}
-              </p>
-              <p className="text-sm text-gray-500">Posts</p>
-            </div>
-            <div>
-              <p className="text-xl sm:text-2xl font-bold text-gray-900">
-                {profile.friendsCount}
-              </p>
-              <p className="text-sm text-gray-500">Friends</p>
-            </div>
-            <div>
-              <p className="text-xl sm:text-2xl font-bold text-gray-900">
-                {formatDistanceToNow(new Date(profile.createdAt))}
-              </p>
-              <p className="text-sm text-gray-500">On BGIFT</p>
+            <div className="flex items-center flex-col md:flex-row xl:flex-col justify-between">
+              {/* Stats */}
+              <div className="flex flex-wrap  justify-center gap-6 md:mt-6 mt-2  sm:text-left md:text-center">
+                <div>
+                  <p className="text-xl sm:text-2xl font-bold text-gray-900">
+                    {profile._count.posts}
+                  </p>
+                  <p className="text-sm text-gray-500">Posts</p>
+                </div>
+                <div>
+                  <p className="text-xl sm:text-2xl font-bold text-gray-900">
+                    {profile.friendsCount}
+                  </p>
+                  <p className="text-sm text-gray-500">Friends</p>
+                </div>
+                <div className="hidden md:block">
+                  <p className="text-xl sm:text-2xl font-bold text-gray-900">
+                    {formatDistanceToNow(new Date(profile.createdAt))}
+                  </p>
+                  <p className="text-sm text-gray-500">On BGIFT</p>
+                </div>
+              </div>
+              {/* Actions */}
+              <div className="relative">
+                <div className=" flex flex-wrap gap-3 mt-6 justify-center sm:justify-start">
+                  {profile.isOwnProfile ? (
+                    <button
+                      onClick={() => setIsEditModalOpen(true)}
+                      className="px-4 sm:px-5 py-2 sm:py-2.5 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition text-sm sm:text-base"
+                    >
+                      Edit Profile
+                    </button>
+                  ) : (
+                    <>
+                      {profile.friendshipStatus === "none" && (
+                        <button
+                          onClick={handleAddFriend}
+                          className="px-4 sm:px-5 py-2 sm:py-2.5 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition text-sm sm:text-base"
+                        >
+                          Add Friend
+                        </button>
+                      )}
+                      {profile.friendshipStatus === "pending" && (
+                        <button
+                          disabled
+                          className="px-4 sm:px-5 py-2 sm:py-2.5 bg-gray-400 text-white rounded-lg font-medium cursor-not-allowed text-sm sm:text-base"
+                        >
+                          Request Sent
+                        </button>
+                      )}
+                      {profile.friendshipStatus === "accepted" && (
+                        <button className="px-4 sm:px-5 py-2 sm:py-2.5 bg-green-600 text-white rounded-lg font-medium text-sm sm:text-base">
+                          Friends
+                        </button>
+                      )}
+                    </>
+                  )}
+                  {!profile.isOwnProfile && (
+                    <MessageButton userId={userId} userName={profile.name} />
+                  )}
+                </div>
+              </div>
             </div>
           </div>
         </div>
