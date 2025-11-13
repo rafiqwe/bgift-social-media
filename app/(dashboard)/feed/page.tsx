@@ -6,7 +6,7 @@ export default async function FeedPage() {
   const session = await auth();
   
   return (
-    <div className="max-w-2xl mx-auto py-6 px-4">
+    <div className="max-w-2xl mx-auto py-6 md:px-4">
       {/* Create Post Form */}
       <div className="mb-6">
         <PostForm image={session?.user.image || '/default-avatar.png'} />
