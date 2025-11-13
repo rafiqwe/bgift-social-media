@@ -64,8 +64,6 @@ export function useRealtimeMessages(
       if (!conversationId || !content.trim() || !socket) return false;
 
       try {
-        
-        
         setIsSending(true);
         const res = await fetch("/api/messages/send", {
           method: "POST",
