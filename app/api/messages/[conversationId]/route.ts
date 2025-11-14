@@ -83,9 +83,18 @@ export async function GET(
       isOwnMessage: msg.senderId === currentUser.id,
     }));
 
+    const OpositeUser = await prisma.conversationParticipant.findFirst({
+      where: {
+        conversationId,
+        NOT: { userId: currentUser.id },
+      },
+      include: { user: true },
+    });
+
     return NextResponse.json({
       messages: formattedMessages,
       nextCursor,
+      oppositeUser: OpositeUser?.user,
       hasMore,
     });
   } catch (error) {
