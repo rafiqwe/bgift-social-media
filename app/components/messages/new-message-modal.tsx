@@ -14,7 +14,9 @@ export default function NewMessageModal({
   onClose,
 }: NewMessageModalProps) {
   const router = useRouter();
-  const [friends, setFriends] = useState<any[]>([]);
+  const [friends, setFriends] = useState<
+    { id: string; name: string; image: string | null; username: string }[]
+  >([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
@@ -53,7 +55,7 @@ export default function NewMessageModal({
       console.error("Error creating conversation:", error);
     } finally {
       setIsLoading(false);
-    } 
+    }
   };
 
   const filteredFriends = friends?.filter(
@@ -131,9 +133,7 @@ export default function NewMessageModal({
                     )}
                   </div>
                   <div className="flex-1 text-left">
-                    <p className="font-semibold text-gray-800">
-                      {friend.name}
-                    </p>
+                    <p className="font-semibold text-gray-800">{friend.name}</p>
                     <p className="text-sm text-gray-600">@{friend.username}</p>
                   </div>
                 </button>
