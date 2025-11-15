@@ -10,6 +10,19 @@ interface ConversationListProps {
   currentConversationId?: string;
 }
 
+interface Conversation {
+  id: string;
+  participant: {
+    name: string;
+    image: string | null;
+  };
+  lastMessage: {
+    content: string;
+    createdAt: string;
+  } | null;
+  unreadCount: number;
+}
+
 export default function ConversationList({
   currentConversationId,
 }: ConversationListProps) {
@@ -18,7 +31,7 @@ export default function ConversationList({
   if (isLoading) {
     return (
       <div className="divide-y divide-gray-200">
-        {localConversation.map((conversation: any) => (
+        {localConversation.map((conversation: Conversation) => (
           <Link
             key={conversation.id}
             href={`/messages/${conversation.id}`}
