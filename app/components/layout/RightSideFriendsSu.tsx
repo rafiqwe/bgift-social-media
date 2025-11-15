@@ -1,14 +1,10 @@
 "use client";
 
-import Image from "next/image";
-import Link from "next/link";
 import React, { useEffect, useState } from "react";
-import { UserPlus2, Loader2 } from "lucide-react";
-import AddFriend from "@/app/hooks/use-addFriend";
 import FriendSuggestions from "../friend/FriendSuggestions";
 
 const RightSideFriendsSu = () => {
-  const [suggestions, setSuggestions] = useState<any[]>([]);
+  const [suggestions, setSuggestions] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

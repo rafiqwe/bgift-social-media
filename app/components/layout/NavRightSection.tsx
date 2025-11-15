@@ -18,7 +18,6 @@ const NavRightSection = ({ user }: NavRightSectionProps) => {
   const { unreadCount } = useNotifications();
   const [showDropdown, setShowDropdown] = useState(false);
   const pathname = usePathname();
-  console.log(user);
 
   const handleLogout = async () => {
     await signOut({ callbackUrl: "/login" });
