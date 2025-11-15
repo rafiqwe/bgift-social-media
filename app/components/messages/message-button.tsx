@@ -8,7 +8,10 @@ interface MessageButtonProps {
   userName: string;
 }
 
-export default function MessageButton({ userId, userName }: MessageButtonProps) {
+export default function MessageButton({
+  userId,
+  userName,
+}: MessageButtonProps) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -41,7 +44,7 @@ export default function MessageButton({ userId, userName }: MessageButtonProps) 
     <button
       onClick={handleMessageClick}
       disabled={isLoading}
-      className="px-6 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 disabled:bg-gray-400 transition"
+      className=" bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 disabled:bg-gray-400 transition px-4 sm:px-5 py-2 sm:py-2.5  text-sm sm:text-base"
     >
       {isLoading ? "Loading..." : "💬 Message"}
     </button>
