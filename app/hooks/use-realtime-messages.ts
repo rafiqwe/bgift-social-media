@@ -21,6 +21,7 @@ export function useRealtimeMessages(
   currentUserId: string
 ) {
   const [messages, setMessages] = useState<Message[]>([]);
+  const [oppositeUser, setOppositeUser] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [typingUsers, setTypingUsers] = useState<Set<string>>(new Set());
@@ -38,9 +39,10 @@ export function useRealtimeMessages(
       const data = await res.json();
       localStorage.setItem(
         `messages_${conversationId}`,
-        JSON.stringify(data.messages)
+        JSON.stringify(data.messages, data.oppositeUser)
       );
       setMessages(data.messages);
+      setOppositeUser(data.oppositeUser);
 
       // Mark messages as read
       await fetch("/api/messages/read", {
@@ -70,9 +72,9 @@ export function useRealtimeMessages(
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ conversationId, content }),
         });
-        
+
         if (!res.ok) throw new Error("Failed to send message");
-        
+
         const data = await res.json();
         const newMessage = data.message;
         setMessages((prev) => [...prev, newMessage]);
@@ -174,6 +176,7 @@ export function useRealtimeMessages(
 
   return {
     messages,
+    oppositeUser,
     isLoading,
     isSending,
     typingUsers: Array.from(typingUsers),

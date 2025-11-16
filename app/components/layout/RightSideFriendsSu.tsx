@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import FriendSuggestions from "../friend/FriendSuggestions";
+import { Loader2 } from "lucide-react";
 
 const RightSideFriendsSu = () => {
   const [suggestions, setSuggestions] = useState([]);
