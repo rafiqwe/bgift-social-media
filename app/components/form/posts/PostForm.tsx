@@ -135,7 +135,7 @@ export default function PostForm({ image }: IImageprops) {
                   <SmileIcon size={18} /> Emoji
                 </button>
                 {isEmojiOpen && (
-                  <div className="absolute z-10 mt-2">
+                  <div className="absolute z-10 mt-2 mr-20 left-12">
                     <EmojiPicker
                       emojiStyle="facebook"
                       onEmojiClick={(emojiObject, event) => {
