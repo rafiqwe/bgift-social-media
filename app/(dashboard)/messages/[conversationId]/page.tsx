@@ -19,19 +19,6 @@ interface OtherUserI {
   image: string | null;
 }
 
-interface LocalMessageI {
-  id: string;
-  isOwnMessage: boolean;
-  content: string;
-  createdAt: string;
-  senderId: string;
-  sender: {
-    id: string;
-    name: string;
-    image: string | null;
-  };
-}
-
 export default function RealtimeConversationPage() {
   const params = useParams();
   const router = useRouter();
@@ -47,6 +34,7 @@ export default function RealtimeConversationPage() {
   const { localMessages } = useLocalStore({ conversationId });
   const {
     messages,
+    oppositeUser,
     isLoading,
     isSending,
     typingUsers,
@@ -67,7 +55,6 @@ export default function RealtimeConversationPage() {
           body: JSON.stringify({ participantId: conversationId }),
         });
         const data = await res.json();
-
         setOtherUser(data.participant);
       } catch (error) {
         console.error("Error fetching conversation:", error);
@@ -83,7 +70,7 @@ export default function RealtimeConversationPage() {
   }, [messages, typingUsers]);
 
   return (
-    <div className="flex h-[calc(100vh-8rem)]">
+    <div className="flex h-screen md:h-[calc(100vh-8rem)]  z-999 absolute top-0 left-0 md:relative w-full md:top-none md:left-none shadow-lg">
       {/* Conversations List - Hidden on mobile */}
       <div className="hidden md:block w-96 bg-white border-r border-gray-200 overflow-y-auto">
         <div className="p-4 border-b border-gray-200">
@@ -125,10 +112,33 @@ export default function RealtimeConversationPage() {
             </svg>
           </button>
 
+          <div className="flex items-center gap-2 ">
+            <div>
+              <div className="w-10 h-10 relative rounded-full overflow-hidden ">
+                {oppositeUser?.image ? (
+                  <Image
+                    src={oppositeUser.image}
+                    alt={oppositeUser.name}
+                    width={40}
+                    height={40}
+                  />
+                ) : (
+                  <div className="w-full h-full text-white flex items-center justify-center font-bold">
+                    {oppositeUser?.name?.charAt(0)}
+                  </div>
+                )}
+              </div>
+            </div>
+            <div>
+              <h1 className="text-lg ">{oppositeUser?.name}</h1>
+              <p className="text-sm">{oppositeUser?.email}</p>
+            </div>
+          </div>
+
           {otherUser && (
             <>
-              <div className="relative">
-                <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-200">
+              <div className="">
+                <div className="w-10 h-10 relative rounded-full overflow-hidden bg-gray-200">
                   {otherUser.image ? (
                     <Image
                       src={otherUser.image}
@@ -142,7 +152,8 @@ export default function RealtimeConversationPage() {
                     </div>
                   )}
                 </div>
-                <div className="absolute bottom-0 right-0">
+                {/* this is online indicator  */}
+                <div className="absolute bottom-0 right-0 z-10">
                   <OnlineIndicator isOnline={isUserOnline(otherUser.id)} />
                 </div>
               </div>
