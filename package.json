@@ -18,7 +18,7 @@
     "emoji-picker-react": "^4.15.0",
     "lucide-react": "^0.544.0",
     "motion": "^12.23.22",
-    "next": "15.5.4",
+    "next": "15.5.9",
     "next-auth": "^5.0.0-beta.29",
     "next-cloudinary": "^6.16.0",
     "ogl": "^1.0.11",
