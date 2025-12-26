@@ -1,55 +1,45 @@
 "use client";
+
 import React, { useEffect, useRef } from "react";
 import PostCard from "../post/PostCard";
 import HasNoMorePost from "./HasNoMorePost";
 import { useFeed } from "@/app/hooks/use-feed";
+import FeedSkeleton from "../Loadings/FeedSkeleton";
 
 const PostFeed = () => {
-  const { posts, isLoading, hasMore, loadMorePosts } = useFeed();
+  const { posts, isLoading, isFetchingNextPage, hasMore, loadMorePosts } =
+    useFeed();
+
   const observerRef = useRef<HTMLDivElement>(null);
 
-  // Infinite scroll using Intersection Observer
   useEffect(() => {
-    if (!observerRef.current || !hasMore || isLoading) return;
+    if (!observerRef.current || !hasMore) return;
 
     const observer = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting && hasMore && !isLoading) {
+        if (entries[0].isIntersecting && hasMore) {
           loadMorePosts();
         }
       },
-      { threshold: 0.1 }
+      { rootMargin: "200px" } // 🔥 prefetch earlier
     );
 
     observer.observe(observerRef.current);
-
     return () => observer.disconnect();
-  }, [hasMore, isLoading, loadMorePosts]);
+  }, [hasMore, loadMorePosts]);
 
   return (
     <div className="space-y-4">
-      {posts.length === 0 && !isLoading && (
-        <div className="text-center py-12 text-gray-500">
-          <p className="text-lg font-medium">No posts yet</p>
-          <p className="text-sm">Be the first to share something!</p>
-        </div>
-      )}
+      {isLoading && <FeedSkeleton />}
 
       {posts.map((post) => (
-        <PostCard key={post.id} post={post}  />
+        <PostCard key={post.id} post={post} />
       ))}
 
-      {/* Loading Indicator */}
-      {isLoading && (
-        <div className="flex justify-center py-8">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-        </div>
-      )}
+      {isFetchingNextPage && <FeedSkeleton count={5} />}
 
-      {/* Intersection Observer Trigger */}
-      {hasMore && <div ref={observerRef} className="h-20" />}
+      {hasMore && <div ref={observerRef} className="h-10" />}
 
-      {/* End of Feed Message */}
       <HasNoMorePost hasMore={hasMore} postLength={posts.length} />
     </div>
   );

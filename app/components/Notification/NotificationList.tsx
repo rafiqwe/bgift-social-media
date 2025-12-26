@@ -7,9 +7,9 @@ import { formatDistanceToNow } from "date-fns";
 import { useNotifications } from "@/app/hooks/use-notifications";
 
 export default function NotificationList() {
-  const { notifications, loading, markAsRead } = useNotifications();
+  const { notifications, isLoading, markAsRead } = useNotifications();
 
-  if (loading)
+  if (isLoading)
     return (
       <div className="flex flex-col items-center justify-center py-20 text-gray-500">
         <Bell className="w-10 h-10 text-gray-400 mb-3 animate-pulse" />
@@ -22,7 +22,9 @@ export default function NotificationList() {
       <div className="flex flex-col items-center justify-center py-16 text-gray-500">
         <Bell className="w-10 h-10 text-gray-400 mb-3" />
         <p className="text-lg font-medium">No notifications yet</p>
-        <p className="text-sm text-gray-400">Stay tuned for updates 🔔</p>
+        <p className="text-sm text-gray-400">
+          Stay tuned for updates <Bell className="w-4 h-4" />
+        </p>
       </div>
     );
   }
@@ -49,7 +51,7 @@ export default function NotificationList() {
             n.isRead ? "bg-white border-gray-200" : "bg-blue-50 border-blue-200"
           }`}
         >
-          {/* ✅ Profile image */}
+          {/*  Profile image */}
           <div className="relative flex-shrink-0">
             <Image
               src={n.fromUser?.image || "/default-avatar.png"}
@@ -78,7 +80,7 @@ export default function NotificationList() {
                 onClick={() => markAsRead(n.id)}
                 className="text-blue-600 text-sm font-medium hover:underline mt-1 inline-block"
               >
-                View {n.post ? "details" : "Profile"} → 
+                View {n.post ? "details" : "Profile"} →
               </Link>
             )}
 
