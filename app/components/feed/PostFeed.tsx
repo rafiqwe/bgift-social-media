@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import PostCard from "../post/PostCard";
 import HasNoMorePost from "./HasNoMorePost";
 import { useFeed } from "@/app/hooks/use-feed";
