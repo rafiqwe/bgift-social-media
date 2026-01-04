@@ -1,125 +1,95 @@
 "use client";
-import axios from "axios";
-import { useState, useEffect, useCallback } from "react";
 
-interface Post {
-  id: string;
-  content: string;
-  imageUrl: string | null;
-  createdAt: string;
-  author: {
-    id: string;
-    name: string;
-    username: string;
-    image: string | null;
-    bio: string | null;
-  };
-  likes: { userId: string }[];
-  comments: {
-    id: string;
-    content: string;
-    createdAt: string;
-  }[];
-  _count: {
-    likes: number;
-    comments: number;
-  };
-  isLikedByUser: boolean;
-}
+import axios from "axios";
+import {
+  useInfiniteQuery,
+  useQueryClient,
+  InfiniteData,
+} from "@tanstack/react-query";
 
 interface FeedResponse {
-  posts: Post[];
+  posts: any[];
   nextCursor: string | null;
   hasMore: boolean;
 }
 
+const fetchFeed = async ({ pageParam }: { pageParam?: string }) => {
+  const cursor = pageParam ? `&cursor=${pageParam}` : "";
+  const { data } = await axios.get<FeedResponse>(
+    `/api/posts/feed?limit=10${cursor}`
+  );
+  return data;
+};
+
 export function useFeed() {
-  const [posts, setPosts] = useState<Post[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [hasMore, setHasMore] = useState(true);
-  const [cursor, setCursor] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
 
-  // Initial load
-  const loadInitialPosts = useCallback(async () => {
-    try {
-      setIsLoading(true);
-      setError(null);
+  const {
+    data,
+    isLoading,
+    isFetchingNextPage,
+    hasNextPage,
+    error,
+    fetchNextPage,
+  } = useInfiniteQuery({
+    queryKey: ["feed"],
+    queryFn: fetchFeed,
+    initialPageParam: undefined,
+    getNextPageParam: (lastPage) =>
+      lastPage.hasMore ? lastPage.nextCursor : undefined,
+    staleTime: 1000 * 180, // 3 min cache
+    refetchOnWindowFocus: false,
+  });
 
-      const res = await axios.get("/api/posts/feed?limit=10");
-      if (res.status === 400) throw new Error("Failed to fetch posts");
+  const posts = data?.pages.flatMap((page) => page.posts) ?? [];
 
-      const data: FeedResponse = res.data;
+  const removePost = (postId: string) => {
+    queryClient.setQueryData<InfiniteData<FeedResponse>>(
+      ["feed"],
+      (oldData) => {
+        if (!oldData) return oldData;
 
-      setPosts(data.posts);
-      setCursor(data.nextCursor);
-      setHasMore(data.hasMore);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load posts");
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  // Load more posts (infinite scroll)
-  const loadMorePosts = useCallback(async () => {
-    if (!hasMore || isLoading) return;
-
-    try {
-      setIsLoading(true);
-      setError(null);
-
-      const res = await axios.get(`/api/posts/feed?limit=10&cursor=${cursor}`);
-      if (res.status === 400) throw new Error("Failed to fetch posts");
-
-      const data: FeedResponse = res.data;
-
-      setPosts((prev) => [...prev, ...data.posts]);
-      setCursor(data.nextCursor);
-      setHasMore(data.hasMore);
-    } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Failed to load more posts"
-      );
-    } finally {
-      setIsLoading(false);
-    }
-  }, [cursor, hasMore, isLoading]);
-
-  // Add new post to feed
-  const addPost = (newPost: Post) => {
-    setPosts((prev) => [newPost, ...prev]);
-  };
-
-  // Update post in feed
-  const updatePost = (postId: string, updatedData: Partial<Post>) => {
-    setPosts((prev) =>
-      prev.map((post) =>
-        post.id === postId ? { ...post, ...updatedData } : post
-      )
+        return {
+          ...oldData,
+          pages: oldData.pages.map((page) => ({
+            ...page,
+            posts: page.posts.filter((post) => post.id !== postId),
+          })),
+        };
+      }
     );
   };
 
-  // Remove post from feed
-  const removePost = (postId: string) => {
-    setPosts((prev) => prev.filter((post) => post.id !== postId));
-    console.log("post Id from remove post:", postId);
-  };
+  const addPost = (newPost: any) => {
+    queryClient.setQueryData<InfiniteData<FeedResponse>>(
+      ["feed"],
+      (oldData) => {
+        if (!oldData) return oldData;
 
-  useEffect(() => {
-    loadInitialPosts();
-  }, [loadInitialPosts]);
+        const newPages = [...oldData.pages];
+        if (newPages.length > 0) {
+          newPages[0] = {
+            ...newPages[0],
+            posts: [newPost, ...newPages[0].posts],
+          };
+        }
+
+        return {
+          ...oldData,
+          pages: newPages,
+        };
+      }
+    );
+  };
 
   return {
     posts,
     isLoading,
-    hasMore,
+    isFetchingNextPage,
+    hasMore: hasNextPage,
     error,
-    loadMorePosts,
-    addPost,
-    setPosts: setPosts,
-    updatePost,
+    loadMorePosts: fetchNextPage,
     removePost,
-    refresh: loadInitialPosts,
+    addPost,
   };
 }
