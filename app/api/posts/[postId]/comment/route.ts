@@ -9,8 +9,15 @@ export async function POST(
 ) {
   try {
     const session = await auth();
-    const postId = await context.params.postId;
+    const { postId } = await context.params;
     const comment = await req.json();
+
+    if (!postId) {
+      return NextResponse.json(
+        { error: "Post ID is required" },
+        { status: 400 }
+      );
+    }
 
     if (!session?.user?.email) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -32,7 +39,7 @@ export async function POST(
       );
     }
 
-    //? ✅ Check if post exists
+    //? Check if post exists
     const post = await prisma.post.findUnique({
       where: { id: postId },
     });
@@ -87,7 +94,13 @@ export async function GET(
 ) {
   try {
     const session = await auth();
-    const postId = await context.params.postId;
+    const { postId } = await context.params;
+
+    if (!postId)
+      return NextResponse.json(
+        { error: "Post ID is required" },
+        { status: 400 }
+      );
 
     if (!session?.user?.email) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -101,7 +114,7 @@ export async function GET(
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    // ✅ Check if post exists
+    //  Check if post exists
     const post = await prisma.post.findUnique({
       where: { id: postId },
     });
@@ -110,7 +123,7 @@ export async function GET(
       return NextResponse.json({ error: "Post not found" }, { status: 404 });
     }
 
-    // ✅ Fetch comments with author details
+    //  Fetch comments with author details
     const postComments = await prisma.comment.findMany({
       where: { postId },
       include: {
@@ -129,7 +142,7 @@ export async function GET(
       },
     });
 
-    // ✅ Add `isOwnComment` flag
+    //  Add `isOwnComment` flag
     const commentsWithOwnership = postComments.map((comment) => ({
       ...comment,
       isOwnComment: comment.author.id === currentUser.id,
@@ -137,7 +150,7 @@ export async function GET(
 
     return NextResponse.json(commentsWithOwnership, { status: 200 });
   } catch (error) {
-    console.error("❌ Error fetching comments:", error);
+    console.error("Error fetching comments:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

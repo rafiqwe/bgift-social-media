@@ -1,5 +1,5 @@
 "use client";
-
+import axios from "axios";
 import { useState } from "react";
 
 const useAddFriend = ({ userId }: { userId: string }) => {
@@ -9,12 +9,10 @@ const useAddFriend = ({ userId }: { userId: string }) => {
   const handleAddFriend = async () => {
     setIsLoading(true);
     try {
-      const res = await fetch("/api/friends/request", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ receiverId: userId }),
+      const res = await axios.post("/api/friends/request", {
+        receiverId: userId,
       });
-      if (res.ok) {
+      if (res.data.success) {
         setIsFriendRqSent(true);
       }
     } catch (error) {

@@ -6,7 +6,7 @@ import { NextRequest, NextResponse } from "next/server";
 export async function GET(req: NextRequest) {
   try {
     const session = await auth();
-    
+
     if (!session?.user?.email) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -85,7 +85,7 @@ export async function GET(req: NextRequest) {
     const postsWithLikeStatus = posts.map((post) => ({
       ...post,
       isLikedByUser: post.likes.some((like) => like.userId === currentUser.id),
-      isOwnPost: post.author.id === currentUser.id
+      isOwnPost: post.author.id === currentUser.id,
     }));
 
     return NextResponse.json({

@@ -2,12 +2,12 @@
 
 import Image from "next/image";
 import { formatDistanceToNow } from "date-fns";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import axios from "axios";
 import Comments from "../Comment/Comments";
 import CommentForm from "../Comment/CommentForm";
 import PostLikesModal from "./PostLikesModal";
-import { DotIcon, Ellipsis } from "lucide-react";
+import { MessageCircle, ThumbsUpIcon } from "lucide-react";
 import PostMenuModal from "./PostMenuModel";
 import PostUpdateModal from "./PostUpdateModel";
 import PostImageModal from "./PostImageModel";
@@ -27,6 +27,7 @@ export interface Comment {
     username: string;
   };
   createdAt: string;
+  isOwnComment: boolean;
 }
 
 interface PostCardProps {
@@ -58,7 +59,6 @@ export default function PostCard({
   handlePostDeleteFromProfile,
   isProfile = false,
 }: PostCardProps) {
-  // Likes
   const [isLiked, setIsLiked] = useState(post.isLikedByUser);
   const [likeCount, setLikeCount] = useState(post._count.likes);
   const [isLiking, setIsLiking] = useState(false);
@@ -75,9 +75,7 @@ export default function PostCard({
   const [isCommentsOpen, setIsCommentsOpen] = useState(false);
   const [comments, setComments] = useState<Comment[]>([]);
   const [isLoadingComments, setIsLoadingComments] = useState(false);
-  const { removePost, setPosts } = useFeed();
-
-  // useEffect for fetching comments can be implemented if needed
+  const { removePost } = useFeed();
 
   const handleLike = async () => {
     if (isLiking) return;
@@ -109,11 +107,10 @@ export default function PostCard({
 
   const toggleComments = async () => {
     setIsCommentsOpen(!isCommentsOpen);
-
     if (!isCommentsOpen) {
       setIsLoadingComments(true);
       try {
-        const res = await axios.get(`/api/posts/${updatedPost.id}/comment`);
+        const res = await axios.get(`/api/posts/${post.id}/comment`);
         setComments(res.data);
       } catch (error) {
         console.error("Failed to load comments:", error);
@@ -133,7 +130,6 @@ export default function PostCard({
       });
 
       if (res.status === 200) {
-        // ✅ Instantly update UI (optimistic update)
         setUpdatedPost({
           ...post,
           content: res.data.content,
@@ -185,7 +181,7 @@ export default function PostCard({
         // const data = res.data;
         setIsPostSuccessMessage("Your post has been deleted successfully!");
         setIsPostSuccessOpen(true);
-        if (isProfile) {
+        if (isProfile && handlePostDeleteFromProfile && updatedPost.id) {
           handlePostDeleteFromProfile(updatedPost.id);
         }
         removePost(updatedPost.id);
@@ -203,14 +199,14 @@ export default function PostCard({
       <div className="flex items-center gap-3 justify-between">
         <Link href={`/profile/${post.author.id}`}>
           <div className="flex items-center gap-[8px] md:gap-3 mb-4">
-            <div className="w-10 h-10 basis-12 md:basis-none rounded-full overflow-hidden bg-gray-200">
+            <div className="relative w-10 h-10 basis-12 md:basis-none rounded-full overflow-hidden bg-gray-200">
               {updatedPost.author.image ? (
                 <Image
                   src={updatedPost.author.image}
                   alt={updatedPost.author.name}
-                  width={40}
-                  height={40}
-                  className=" w-10 h-10"
+                  fill
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                  className=" w-full h-full object-cover"
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center bg-blue-500 text-white font-bold">
@@ -284,19 +280,19 @@ export default function PostCard({
         <button
           onClick={handleLike}
           disabled={isLiking}
-          className={`flex-1 py-2 cursor-pointer rounded-lg font-medium transition ${
+          className={`flex-1 text-center flex items-center justify-center w-full py-2 cursor-pointer rounded-lg font-medium transition ${
             isLiked
               ? "bg-blue-100 text-blue-600"
               : "bg-gray-100 text-gray-700 hover:bg-gray-200"
           }`}
         >
-          {isLiked ? "❤️ Liked" : "🤍 Like"}
+          {isLiked ? <ThumbsUpIcon /> : <ThumbsUpIcon />}
         </button>
         <button
           onClick={toggleComments}
-          className="flex-1 py-2 cursor-pointer rounded-lg font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 transition"
+          className="flex-1 py-2 cursor-pointer rounded-lg font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 transition flex items-center justify-center w-full gap-5"
         >
-          💬 Comment
+          <MessageCircle /> Comment
         </button>
       </div>
 

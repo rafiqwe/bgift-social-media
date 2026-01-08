@@ -4,11 +4,18 @@ import { NextResponse } from "next/server";
 
 export async function PUT(
   req: Request,
-  { params }: { params: Promise<{ notificationId: string }> }
+  context: { params: Promise<{ notificationId: string }> }
 ) {
   try {
     const session = await auth();
-    const notificationId = params.notificationId;
+    const { notificationId } = await context.params;
+
+    if (!notificationId) {
+      return NextResponse.json(
+        { success: false, message: "Notification ID is required" },
+        { status: 400 }
+      );
+    }
 
     if (!session?.user?.email) {
       return NextResponse.json(

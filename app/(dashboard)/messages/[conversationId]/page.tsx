@@ -26,12 +26,10 @@ export default function RealtimeConversationPage() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const { currentUserId } = useUser();
-  console.log("current user id form realtime message:", currentUserId);
 
   const { socket, isConnected } = useSocket(currentUserId);
   const { isUserOnline } = useOnlineStatus(socket);
 
-  const { localMessages } = useLocalStore({ conversationId });
   const {
     messages,
     oppositeUser,
@@ -70,7 +68,7 @@ export default function RealtimeConversationPage() {
   }, [messages, typingUsers]);
 
   return (
-    <div className="flex h-screen md:h-[calc(100vh-8rem)]  z-999 absolute top-0 left-0 md:relative w-full md:top-none md:left-none shadow-lg">
+    <div className="flex h-screen md:h-[calc(100vh-8rem)]  z-999 md:z-0 absolute top-0 left-0 md:relative w-full md:top-none md:left-none shadow-lg">
       {/* Conversations List - Hidden on mobile */}
       <div className="hidden md:block w-96 bg-white border-r border-gray-200 overflow-y-auto">
         <div className="p-4 border-b border-gray-200">
@@ -173,17 +171,7 @@ export default function RealtimeConversationPage() {
         {/* Messages Area */}
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
           {isLoading ? (
-            localMessages && (
-              <>
-                {localMessages.map((message) => (
-                  <MessageBubble
-                    key={message.id}
-                    message={message}
-                    isOwnMessage={message.isOwnMessage}
-                  />
-                ))}
-              </>
-            )
+            <div>loading</div>
           ) : messages.length === 0 ? (
             <div className="flex items-center justify-center h-full text-gray-500">
               <p>No messages yet. Start the conversation!</p>

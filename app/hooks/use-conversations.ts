@@ -1,4 +1,6 @@
-import { useState, useEffect, useCallback } from "react";
+"use client";
+
+import { useQuery } from "@tanstack/react-query";
 
 interface Conversation {
   id: string;
@@ -20,45 +22,43 @@ interface Conversation {
   updatedAt: string;
 }
 
+const fetchConversations = async (): Promise<Conversation[]> => {
+  const res = await fetch("/api/messages/conversations");
+
+  if (!res.ok) {
+    throw new Error("Failed to fetch conversations");
+  }
+
+  const data = await res.json();
+
+  // optional localStorage cache
+  localStorage.setItem("conversations", JSON.stringify(data.conversations));
+
+  return data.conversations;
+};
+
 export function useConversations() {
-  const [conversations, setConversations] = useState<Conversation[]>([]);
-  const [unReadCount, setUnReadCount] = useState();
+  const {
+    data: conversations = [],
+    isLoading,
+    isFetching,
+    error,
+    refetch,
+  } = useQuery({
+    queryKey: ["conversations"],
+    queryFn: fetchConversations,
 
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  const fetchConversations = useCallback(async () => {
-    try {
-      setIsLoading(true);
-      setError(null);
-
-      const res = await fetch("/api/messages/conversations");
-      if (!res.ok) throw new Error("Failed to fetch conversations");
-
-      const data = await res.json();
-      localStorage.setItem("conversations", JSON.stringify(data.conversations));
-      setConversations(data.conversations);
-
-      // data.conversations.map((data) => {
-      //   setUnReadCount(data.unreadCount);
-      // });
-    } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Failed to load conversations"
-      );
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchConversations();
-  }, [fetchConversations]);
+    staleTime: 30 * 1000, // 30s no refetch
+    gcTime: 5 * 60 * 1000, // 5 min cache
+    refetchOnWindowFocus: false,
+    retry: 1,
+  });
 
   return {
     conversations,
-    isLoading,
-    error,
-    refresh: fetchConversations,
+    isLoading, // first load
+    isFetching, // background refresh
+    error: error ? (error as Error).message : null,
+    refresh: refetch,
   };
 }

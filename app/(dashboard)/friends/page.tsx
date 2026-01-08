@@ -1,89 +1,21 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Image from "next/image";
 import EmptyState from "@/app/components/friend/EmptyState";
 import FriendsList from "@/app/components/friend/FriendsList";
 import ReceivedFriends from "@/app/components/friend/ReceivedFriends";
-
-type Friend = {
-  id: string;
-  name: string;
-  username: string;
-  image: string;
-  bio?: string;
-};
-
-type FriendRequest = {
-  id: string;
-  requester?: Friend;
-  receiver?: Friend;
-};
+import {
+  useFriend,
+  Friend,
+  ExtendedFriendRequest,
+} from "@/app/hooks/use-Friend";
+import { FriendSkeletonList } from "@/app/components/Loadings/FriendSkeleton";
 
 export default function FriendsPage() {
   const [tab, setTab] = useState<"friends" | "requests" | "sent">("friends");
-  const [friends, setFriends] = useState<Friend[]>([]);
-  const [received, setReceived] = useState<FriendRequest[]>([]);
-  const [sent, setSent] = useState<FriendRequest[]>([]);
-  const [loading, setLoading] = useState(false);
-
-  // Fetch friends/requests
-  useEffect(() => {
-    const fetchFriends = async () => {
-      setLoading(true);
-      try {
-        if (tab === "friends") {
-          const res = await fetch("/api/friends/list");
-          const data = await res.json();
-          setFriends(data.friends || []);
-        } else if (tab === "requests") {
-          const res = await fetch("/api/friends/requests");
-          const data = await res.json();
-          setReceived(data.received || []);
-        } else if (tab === "sent") {
-          const res = await fetch("/api/friends/requests");
-          const data = await res.json();
-          setSent(data.sent || []);
-        }
-      } catch (err) {
-        console.error("Error fetching friends:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchFriends();
-  }, [tab]);
-
-  // Actions
-  const acceptRequest = async (id: string) => {
-    await fetch("/api/friends/accept", {
-      method: "POST",
-      body: JSON.stringify({ requestId: id }),
-    });
-    setReceived((prev) => prev.filter((r) => r.id !== id));
-  };
-
-  const rejectRequest = async (id: string) => {
-    await fetch("/api/friend-requests/reject", {
-      method: "POST",
-      body: JSON.stringify({ requestId: id }),
-    });
-    setReceived((prev) => prev.filter((r) => r.id !== id));
-  };
-
-  const removeFriend = async (id: string) => {
-    console.log("the id:", id);
-    try {
-      await fetch("/api/friends/unfriend", {
-        method: "DELETE",
-        body: JSON.stringify({ friendId: id }),
-      });
-      setFriends((prev) => prev.filter((f) => f.id !== id));
-    } catch (err) {
-      console.log("Error form unfriend:", err);
-    }
-  };
+  const { isLoading, friendData, acceptRequest, rejectRequest, removeFriend } =
+    useFriend({ tab });
 
   return (
     <div className="w-full h-full bg-gray-50">
@@ -119,19 +51,15 @@ export default function FriendsPage() {
       </div>
 
       {/* Loading State */}
-      {loading && (
-        <div className="flex justify-center items-center h-40">
-          <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-        </div>
-      )}
+      {isLoading && <FriendSkeletonList />}
 
       {/* Friends list */}
-      {!loading && tab === "friends" && (
+      {!isLoading && tab === "friends" && (
         <div className="divide-y divide-gray-200">
-          {friends.length === 0 ? (
+          {friendData?.length === 0 ? (
             <EmptyState message="You don’t have any friends yet." />
           ) : (
-            friends.map((friend) => (
+            (friendData as Friend[])?.map((friend) => (
               <FriendsList
                 key={friend.id}
                 friend={friend}
@@ -143,12 +71,12 @@ export default function FriendsPage() {
       )}
 
       {/* Received requests */}
-      {!loading && tab === "requests" && (
+      {!isLoading && tab === "requests" && (
         <div className="divide-y divide-gray-200">
-          {received.length === 0 ? (
+          {friendData?.length === 0 ? (
             <EmptyState message="No friend requests received." />
           ) : (
-            received.map((req) => (
+            (friendData as ExtendedFriendRequest[])?.map((req) => (
               <ReceivedFriends
                 key={req.id}
                 req={req}
@@ -161,12 +89,12 @@ export default function FriendsPage() {
       )}
 
       {/* Sent requests */}
-      {!loading && tab === "sent" && (
+      {!isLoading && tab === "sent" && (
         <div className="divide-y divide-gray-200">
-          {sent.length === 0 ? (
+          {friendData?.length === 0 ? (
             <EmptyState message="No friend requests sent." />
           ) : (
-            sent.map((req) => (
+            (friendData as ExtendedFriendRequest[])?.map((req) => (
               <div
                 key={req.id}
                 className="flex items-center justify-between px-5 py-4 hover:bg-gray-50"

@@ -23,7 +23,7 @@ export async function POST(
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    const postId = await context.params.postId;
+    const { postId } = await context.params;
 
     // Check if post exists
     const post = await prisma.post.findUnique({
@@ -107,8 +107,14 @@ export async function GET(
   context: { params: Promise<{ postId: string }> }
 ) {
   try {
-    const postId = await context.params.postId;
+    const { postId } = await context.params;
 
+    if (!postId) {
+      return NextResponse.json(
+        { error: "Post ID is required" },
+        { status: 400 }
+      );
+    }
     // ✅ Check if post exists
     const post = await prisma.post.findUnique({
       where: { id: postId },

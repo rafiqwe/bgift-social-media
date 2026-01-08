@@ -7,8 +7,7 @@ import { motion } from "framer-motion";
 import axios from "axios";
 import PostSuccessModal from "../../Notification/NotificationModal2";
 
-import { CameraIcon, SmileIcon } from "lucide-react";
-import { log } from "console";
+import { CameraIcon, SmileIcon, X } from "lucide-react";
 import EmojiPicker from "emoji-picker-react";
 interface IImageprops {
   image: string;
@@ -91,7 +90,7 @@ export default function PostForm({ image }: IImageprops) {
               onClick={() => setIsEmojiOpen(false)}
               placeholder="Share your thoughts..."
               className="w-full p-3 text-gray-700 border rounded-xl resize-none
-                       focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white/70"
+               bg-white/70 border-gray-300 outline-none"
               rows={3}
             />
 
@@ -110,7 +109,7 @@ export default function PostForm({ image }: IImageprops) {
                   onClick={() => setPreview(null)}
                   className="absolute top-2 right-2 bg-black/60 text-white text-xs px-2 py-1 rounded-md hover:bg-black/80"
                 >
-                  ✕
+                  <X size={18} />
                 </button>
               </div>
             )}
@@ -130,14 +129,13 @@ export default function PostForm({ image }: IImageprops) {
                 <button
                   type="button"
                   onClick={() => setIsEmojiOpen(true)}
-                  className="flex items-center gap-1 px-3 py-1 text-sm rounded-lg hover:bg-gray-100 transition"
+                  className="flex items-center gap-1 px-3 py-1 text-sm rounded-lg hover:bg-gray-100 transition cursor-pointer"
                 >
                   <SmileIcon size={18} /> Emoji
                 </button>
                 {isEmojiOpen && (
-                  <div className="absolute z-10 mt-2 mr-20 left-12">
+                  <div className="absolute  z-20 mt-2 mr-20 left-20">
                     <EmojiPicker
-                      emojiStyle="facebook"
                       onEmojiClick={(emojiObject, event) => {
                         const selectedEmoji = emojiObject.emoji;
                         setContent(content + selectedEmoji);
@@ -154,7 +152,7 @@ export default function PostForm({ image }: IImageprops) {
                 disabled={!content.trim() || isSubmitting}
                 className="px-6 py-2 bg-blue-600 text-white rounded-lg font-medium 
                          hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed 
-                         transition-all shadow-md"
+                         transition-all shadow-md cursor-pointer"
               >
                 {isSubmitting ? "Posting..." : "Post"}
               </motion.button>
