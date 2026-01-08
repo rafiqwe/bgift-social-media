@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: Promise<{ conversationId: string }> }
+  context: { params: Promise<{ conversationId: string }> }
 ) {
   try {
     const session = await auth();
@@ -21,7 +21,13 @@ export async function GET(
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    const conversationId = params.conversationId;
+    const { conversationId } = await context.params;
+
+    if (!conversationId)
+      return NextResponse.json(
+        { error: "Invalid conversation ID" },
+        { status: 400 }
+      );
 
     // Verify user is part of conversation
     const participant = await prisma.conversationParticipant.findFirst({
