@@ -8,12 +8,17 @@ export async function GET(
 ) {
   try {
     const session = await auth();
-    const postId = await context.params.postId;
+    const { postId } = await context.params;
+
+    if (!postId)
+      return NextResponse.json(
+        { error: "Post id is required" },
+        { status: 400 }
+      );
 
     // ✅ Check for authenticated user
-    if (!session?.user) {
+    if (!session?.user)
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
 
     // ✅ Find user in DB
     const user = await prisma.user.findUnique({
