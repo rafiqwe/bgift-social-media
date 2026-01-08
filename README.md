@@ -36,10 +36,8 @@ BGIFT is your **next-generation social network** — powered by AI to help you b
 | **Database** | **PostgreSQL** via [Neon](https://neon.tech) |
 | **ORM** | [Prisma](https://prisma.io) |
 | **Authentication** | [NextAuth.js](https://next-auth.js.org) |
-| **AI Features** | OpenAI / Custom recommendation engine |
 | **Deployment** | [Vercel](https://vercel.com) |
-| **Real-time** | WebSockets / Server-Sent Events (optional) |
-
+| **Real-time** | WebSockets |
 ---
 
 ## 📦 Getting Started
