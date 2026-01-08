@@ -2,7 +2,6 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { NextResponse } from "next/server";
 
-// ✅ Get all notifications for the current user
 export async function GET() {
   try {
     const session = await auth();
@@ -26,7 +25,7 @@ export async function GET() {
       );
     }
 
-    // ✅ Fetch notifications with related user + post
+    // Fetch notifications with related user + post
     const notifications = await prisma.notification.findMany({
       where: { userId: user.id },
       orderBy: { createdAt: "desc" },
