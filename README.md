@@ -1,6 +1,6 @@
 # BGIFT - Connect Smarter. Grow Together.
 
-![BGIFT App Preview](https://bgift-social-media.vercel.app/bgift-preview.png)  
+![BGIFT App Preview](https://bgift-social-media.vercel.app/images/bgift-social-media-landing.webp)  
 *(Live App: [https://bgift-social-media.vercel.app](https://bgift-social-media.vercel.app))*
 
 BGIFT is your **next-generation social network** — powered by AI to help you build meaningful connections, share your voice, and inspire others.
