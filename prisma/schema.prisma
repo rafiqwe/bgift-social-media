@@ -1,287 +1,403 @@
-// BGIFT Social Media MVP - Prisma Schema
-// This schema includes only essential models for MVP functionality
-
 generator client {
-  provider = "prisma-client-js"
-}
+provider = "prisma-client-js"
+} 
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-}
+provider = "postgresql"
+url      = env("DATABASE_URL")
+} 
 
-// User model - Core user information
+// ========== USER ========== 
+
 model User {
-  id            String    @id @default(cuid())
-  email         String    @unique
-  name          String
-  username      String    @unique
-  image         String?
-  bio           String?
-  isActive      Boolean   @default(true)
-  isVerified    Boolean   @default(false)
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  emailVerified DateTime?
-  accounts      Account[]
-  reports       Reports[] @relation("UserReports")
+id            String    @id @default(cuid())
+email         String    @unique
+name          String
+username      String    @unique
+image         String?
+bio           String?
+isActive      Boolean   @default(true)
+isVerified    Boolean   @default(false)
+createdAt     DateTime  @default(now())
+updatedAt     DateTime  @updatedAt
+emailVerified DateTime?
+role          UserRole  @default(STUDENT)
+department    String?
+semester      String?
+rollNumber    String?   
 
-  // User's posts
-  posts Post[]
+accounts      Account[]
+reports       Reports[] @relation("UserReports") 
 
-  // User's comments on posts
-  comments Comment[]
+posts         Post[]
+comments      Comment[]
+likes         Like[] 
 
-  // User's likes on posts
-  likes Like[]
+sentFriendRequests     FriendRequest[] @relation("FriendRequester")
+receivedFriendRequests FriendRequest[] @relation("FriendReceiver") 
 
-  // Friendship relationships (as requester)
-  sentFriendRequests FriendRequest[] @relation("FriendRequester")
+sentMessages     Message[] @relation("MessageSender")
+receivedMessages Message[] @relation("MessageReceiver") 
 
-  // Friendship relationships (as receiver)
-  receivedFriendRequests FriendRequest[] @relation("FriendReceiver")
+fromUser       Notification[] @relation("NotificationSender")
+mentioned      Mention[]
+conversations  ConversationParticipant[]
+Session        Session[]
+notifications  Notification[] 
 
-  // Direct messages sent
-  sentMessages Message[] @relation("MessageSender")
+postedNotices  Notice[] @relation("NoticeAuthor")
+noticeViews    NoticeView[]
+savedNotices   SavedNotice[] 
+@@index([rollNumber])
+@@map("users")
+} 
 
-  // Direct messages received  
-  receivedMessages Message[] @relation("MessageReceiver")
-
-  fromUser      Notification[]            @relation("NotificationSender")
-  mentioned     Mention[]
-  // Conversations the user is part of
-  conversations ConversationParticipant[]
-  Session       Session[]
-  notifications Notification[]
-  // Notification  Notification[]
-
-  @@map("users")
-}
+// ========== AUTH MODELS ========== 
 
 model Account {
-  id                String  @id @default(cuid())
-  userId            String
-  type              String
-  provider          String
-  providerAccountId String
-  refresh_token     String? @db.Text
-  access_token      String? @db.Text
-  expires_at        Int?
-  token_type        String?
-  scope             String?
-  id_token          String? @db.Text
-  session_state     String?
+id                String  @id @default(cuid())
+userId            String
+type              String
+provider          String
+providerAccountId String
+refresh_token     String? @db.Text
+access_token      String? @db.Text
+expires_at        Int?
+token_type        String?
+scope             String?
+id_token          String? @db.Text
+session_state     String? 
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+user User @relation(fields: [userId], references: [id], onDelete: Cascade) 
 
-  @@unique([provider, providerAccountId])
-  @@map("accounts")
-}
+@@unique([provider, providerAccountId])
+@@index([userId])
+@@map("accounts")
+} 
 
 model Session {
-  id           String   @id @default(cuid())
-  sessionToken String   @unique
-  userId       String
-  expires      DateTime
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+id           String   @id @default(cuid())
+sessionToken String   @unique
+userId       String
+expires      DateTime
+user         User     @relation(fields: [userId], references: [id], onDelete: Cascade) 
 
-  @@map("sessions")
-}
+@@index([userId])
+@@map("sessions")
+} 
 
 model VerificationToken {
-  identifier String
-  token      String   @unique
-  expires    DateTime
+identifier String
+token      String   @unique
+expires    DateTime 
 
-  @@unique([identifier, token])
-  @@map("verification_tokens")
-}
+@@unique([identifier, token])
+@@map("verification_tokens")
+} 
 
-// Post model - User posts/updates
+// ========== POSTS & FEED ========== 
+
 model Post {
-  id        String   @id @default(cuid())
-  content   String
-  imageUrl  String? // Optional image for posts
-  isUpdated Boolean  @default(false)
-  authorId  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+id        String   @id @default(cuid())
+content   String
+imageUrl  String?
+isUpdated Boolean  @default(false)
+authorId  String
+createdAt DateTime @default(now())
+updatedAt DateTime @updatedAt 
 
-  // report relation
-  reports Reports[] @relation("PostReports")
+reports       Reports[] @relation("PostReports")
+author        User      @relation(fields: [authorId], references: [id], onDelete: Cascade) 
 
-  // Post author relationship
-  author User @relation(fields: [authorId], references: [id], onDelete: Cascade)
+comments      Comment[]
+likes         Like[]
+notifications Notification[]
+mentions      Mention[] 
 
-  // Post interactions
+@@index([authorId])
+@@index([createdAt(sort: Desc)])
+@@map("posts")
+} 
+
+model Comment {
+id        String   @id @default(cuid())
+content   String
+postId    String
+authorId  String
+createdAt DateTime @default(now())
+updatedAt DateTime @updatedAt 
+
+post     Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
+author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
+notice   Notice? @relation(fields: [noticeId], references: [id])
+noticeId String? 
+
+@@index([postId, createdAt])
+@@index([authorId])
+@@index([noticeId])
+@@map("comments")
+} 
+
+model Like {
+id        String   @id @default(cuid())
+postId    String
+userId    String
+createdAt DateTime @default(now()) 
+
+post     Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
+user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+notice   Notice? @relation(fields: [noticeId], references: [id])
+noticeId String? 
+
+@@unique([postId, userId])
+@@index([userId])
+@@index([noticeId])
+@@map("likes")
+} 
+
+// ========== FRIENDSHIP ========== 
+
+model FriendRequest {
+id          String           @id @default(cuid())
+requesterId String
+receiverId  String
+status      FriendshipStatus @default(PENDING)
+createdAt   DateTime         @default(now())
+updatedAt   DateTime         @updatedAt 
+
+requester User @relation("FriendRequester", fields: [requesterId], references: [id], onDelete: Cascade)
+receiver  User @relation("FriendReceiver", fields: [receiverId], references: [id], onDelete: Cascade) 
+
+@@unique([requesterId, receiverId])
+@@index([receiverId, status])
+@@map("friend_requests")
+} 
+
+// ========== MESSAGING ========== 
+
+model Conversation {
+id        String           @id @default(cuid())
+type      ConversationType @default(DIRECT)
+name      String?
+createdAt DateTime @default(now())
+updatedAt DateTime @updatedAt 
+
+participants ConversationParticipant[]
+messages     Message[] 
+
+@@index([updatedAt(sort: Desc)])
+@@map("conversations")
+} 
+
+model ConversationParticipant {
+id             String   @id @default(cuid())
+conversationId String
+userId         String
+joinedAt       DateTime @default(now()) 
+
+conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+user         User         @relation(fields: [userId], references: [id], onDelete: Cascade) 
+
+@@unique([conversationId, userId])
+@@index([userId])
+@@map("conversation_participants")
+} 
+
+model Message {
+id             String   @id @default(cuid())
+content        String
+senderId       String
+receiverId     String?
+conversationId String?
+isRead         Boolean  @default(false)
+createdAt      DateTime @default(now())
+updatedAt      DateTime @updatedAt 
+
+sender       User          @relation("MessageSender", fields: [senderId], references: [id], onDelete: Cascade)
+receiver     User?         @relation("MessageReceiver", fields: [receiverId], references: [id], onDelete: SetNull)
+conversation Conversation? @relation(fields: [conversationId], references: [id], onDelete: Cascade) 
+
+@@index([conversationId, createdAt])
+@@index([senderId])
+@@index([receiverId])
+@@map("messages")
+} 
+
+// ========== REPORT SYSTEM ========== 
+
+model Reports {
+id        String   @id @default(cuid())
+reason    String
+details   String?
+createdAt DateTime @default(now()) 
+
+postId   String
+userId   String
+noticeId String? 
+
+post   Post   @relation("PostReports", fields: [postId], references: [id], onDelete: Cascade)
+user   User   @relation("UserReports", fields: [userId], references: [id], onDelete: Cascade)
+notice Notice? @relation(fields: [noticeId], references: [id]) 
+
+@@index([postId])
+@@index([userId])
+@@index([noticeId])
+} 
+
+// ========== NOTIFICATION ========== 
+
+model Notification {
+id        String           @id @default(cuid())
+type      NotificationType
+message   String
+link      String?
+isRead    Boolean          @default(false)
+createdAt DateTime         @default(now()) 
+
+userId     String
+fromUserId String?
+postId     String?
+noticeId   String? 
+
+user      User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+fromUser  User?  @relation("NotificationSender", fields: [fromUserId], references: [id])
+post      Post?  @relation(fields: [postId], references: [id], onDelete: Cascade)
+notice    Notice? @relation(fields: [noticeId], references: [id]) 
+
+@@index([userId, isRead, createdAt(sort: Desc)])
+@@index([fromUserId])
+@@index([postId])
+@@index([noticeId])
+} 
+
+// ========== MENTIONS ========== 
+
+model Mention {
+id          String   @id @default(cuid())
+postId      String
+mentionedId String
+noticeId    String?
+createdAt   DateTime @default(now()) 
+
+post      Post    @relation(fields: [postId], references: [id])
+mentioned User    @relation(fields: [mentionedId], references: [id])
+notice    Notice? @relation(fields: [noticeId], references: [id]) 
+
+@@index([postId])
+@@index([mentionedId])
+@@index([noticeId])
+} 
+
+// ========== BUG REPORT ========== 
+
+model BugReport {
+id            String   @id @default(cuid())
+title         String
+details       String
+steps         String
+severity      String
+reporterEmail String?
+attachments   String[]
+createdAt     DateTime @default(now()) 
+
+@@index([createdAt(sort: Desc)])
+} 
+
+// ========== NOTICE SYSTEM ==========
+
+model Notice {
+  id            String   @id @default(cuid())
+  title         String
+  content       String   @db.Text
+  category      NoticeCategory @default(GENERAL)
+  priority      NoticePriority @default(MEDIUM)
+  authorId      String
+  department    String?
+  semester      String?
+  attachments   String[]
+  isPinned      Boolean  @default(false)
+  isPublished   Boolean  @default(true)
+  expiresAt     DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  author        User @relation("NoticeAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+  views         NoticeView[]
+  savedBy       SavedNotice[]
+
+  // Opposing relation fields to fix the validation errors:
   comments      Comment[]
   likes         Like[]
+  reports       Reports[]
   notifications Notification[]
   mentions      Mention[]
 
-  @@map("posts")
+  @@index([authorId])
+  @@index([department, semester])
+  @@index([isPinned, createdAt(sort: Desc)])
+  @@map("notices")
 }
 
-// Comment model - Comments on posts
-model Comment {
-  id        String   @id @default(cuid())
-  content   String
-  postId    String
-  authorId  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 
-  // Comment relationships
-  post   Post @relation(fields: [postId], references: [id], onDelete: Cascade)
-  author User @relation(fields: [authorId], references: [id], onDelete: Cascade)
+model NoticeView {
+id        String   @id @default(cuid())
+noticeId  String
+userId    String
+viewedAt  DateTime @default(now()) 
 
-  @@map("comments")
+notice Notice @relation(fields: [noticeId], references: [id], onDelete: Cascade)
+user   User   @relation(fields: [userId], references: [id], onDelete: Cascade) 
+
+@@unique([noticeId, userId])
+@@index([userId])
+@@map("notice_views")
+} 
+
+model SavedNotice {
+id        String   @id @default(cuid())
+noticeId  String
+userId    String
+savedAt   DateTime @default(now()) 
+
+notice Notice @relation(fields: [noticeId], references: [id], onDelete: Cascade)
+user   User   @relation(fields: [userId], references: [id], onDelete: Cascade) 
+
+@@unique([noticeId, userId])
+@@index([userId])
+@@map("saved_notices")
+} 
+
+// ENUMS 
+
+enum UserRole {
+  STUDENT
+  TEACHER
+  ADMIN
+  STAFF
 }
 
-// Like model - Post likes
-model Like {
-  id        String   @id @default(cuid())
-  postId    String
-  userId    String
-  createdAt DateTime @default(now())
-
-  // Like relationships
-  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  // Ensure user can only like a post once
-  @@unique([postId, userId])
-  @@map("likes")
+enum NoticeCategory {
+  ACADEMIC
+  EXAM
+  EVENT
+  HOLIDAY
+  RESULT
+  ADMISSION
+  SCHOLARSHIP
+  PLACEMENT
+  SPORTS
+  CULTURAL
+  GENERAL
+  URGENT
 }
 
-// Friend Request model - Managing friendships
-model FriendRequest {
-  id          String           @id @default(cuid())
-  requesterId String
-  receiverId  String
-  status      FriendshipStatus @default(PENDING)
-  createdAt   DateTime         @default(now())
-  updatedAt   DateTime         @updatedAt
-
-  // Friend request relationships
-  requester User @relation("FriendRequester", fields: [requesterId], references: [id], onDelete: Cascade)
-  receiver  User @relation("FriendReceiver", fields: [receiverId], references: [id], onDelete: Cascade)
-
-  // Prevent duplicate friend requests
-  @@unique([requesterId, receiverId])
-  @@map("friend_requests")
+enum NoticePriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
 }
 
-// Conversation model - Chat conversations
-model Conversation {
-  id        String           @id @default(cuid())
-  type      ConversationType @default(DIRECT)
-  name      String? // For group chats (future feature)
-  createdAt DateTime         @default(now())
-  updatedAt DateTime         @updatedAt
-
-  // Conversation relationships
-  participants ConversationParticipant[]
-  messages     Message[]
-
-  @@map("conversations")
-}
-
-// Conversation participants - Many-to-many relationship
-model ConversationParticipant {
-  id             String   @id @default(cuid())
-  conversationId String
-  userId         String
-  joinedAt       DateTime @default(now())
-
-  // Participant relationships
-  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
-  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  // Ensure user can only be added to conversation once
-  @@unique([conversationId, userId])
-  @@map("conversation_participants")
-}
-
-// Message model - Direct messages
-model Message {
-  id             String   @id @default(cuid())
-  content        String
-  senderId       String
-  receiverId     String? // For direct messages
-  conversationId String? // For group messages (future)
-  isRead         Boolean  @default(false)
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-
-  // Message relationships
-  sender       User          @relation("MessageSender", fields: [senderId], references: [id], onDelete: Cascade)
-  receiver     User?         @relation("MessageReceiver", fields: [receiverId], references: [id], onDelete: SetNull)
-  conversation Conversation? @relation(fields: [conversationId], references: [id], onDelete: Cascade)
-
-  @@map("messages")
-}
-
-// Report model
-model Reports {
-  id        String   @id @default(cuid())
-  reason    String
-  details   String?
-  createdAt DateTime @default(now())
-
-  // 🔗 Relations
-  postId String
-  post   Post   @relation("PostReports", fields: [postId], references: [id], onDelete: Cascade)
-
-  userId String
-  user   User   @relation("UserReports", fields: [userId], references: [id], onDelete: Cascade)
-}
-
-// Notification model 
-model Notification {
-  id        String           @id @default(cuid())
-  type      NotificationType
-  message   String
-  link      String? // e.g. /post/123 or /user/456
-  isRead    Boolean          @default(false)
-  createdAt DateTime         @default(now())
-
-  // Relations
-  userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  // Optional sender relation (useful for social apps)
-  fromUserId String?
-  fromUser   User?   @relation("NotificationSender", fields: [fromUserId], references: [id])
-
-  // Optional relation to a post (makes analytics easier)
-  postId String?
-  post   Post?   @relation(fields: [postId], references: [id], onDelete: Cascade)
-}
-
-// Mention Model
-model Mention {
-  id          String   @id @default(cuid())
-  postId      String
-  post        Post     @relation(fields: [postId], references: [id])
-  mentionedId String // user who was mentioned
-  mentioned   User     @relation(fields: [mentionedId], references: [id])
-  createdAt   DateTime @default(now())
-}
-
-// Bug Report model
-model BugReport {
-  id            String   @id @default(cuid())
-  title         String
-  details       String
-  steps         String
-  severity      String
-  reporterEmail String?
-  attachments   String[] // store Cloudinary URLs
-  createdAt     DateTime @default(now())
-}
-
-// Enums for status management
 enum FriendshipStatus {
   PENDING
   ACCEPTED
