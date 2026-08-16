@@ -2,11 +2,15 @@
 
 import ConversationList from "@/app/components/messages/conversation-list";
 import NewMessageModal from "@/app/components/messages/new-message-modal";
+import useUser from "@/app/hooks/use-user";
 import { useState } from "react";
 
 export default function MessagesPage() {
   const [isNewMessageOpen, setIsNewMessageOpen] = useState(false);
 
+    const { currentUserId } = useUser();
+
+  console.log("User Id",currentUserId);
   return (
     <div className="flex h-[calc(100vh-8rem)]">
       {/* Conversations List */}
