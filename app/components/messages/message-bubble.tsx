@@ -27,17 +27,17 @@ export default function MessageBubble({
     <div
       className={`flex gap-2 ${isOwnMessage ? "flex-row-reverse" : "flex-row"}`}
     >
-      <div className="w-8 h-8 rounded-full overflow-hidden bg-gray-200 flex-shrink-0">
-        {message.sender.image ? (
+      <div className="w-8 h-8 rounded-full overflow-hidden bg-gray-200 shrink-0">
+        {message.sender?.image ? (
           <Image
             src={message.sender.image}
-            alt={message.sender.name}
+            alt={message.sender?.name || "User"}
             width={32}
             height={32}
           />
         ) : (
           <div className="w-full h-full bg-blue-500 text-white flex items-center justify-center text-sm font-bold">
-            {message.sender.name.charAt(0)}
+            {message.sender?.name?.charAt(0) || "?"}
           </div>
         )}
       </div>
@@ -54,7 +54,7 @@ export default function MessageBubble({
               : "bg-gray-200 text-gray-800 rounded-bl-none"
           }`}
         >
-          <p className="break-words">{message.content}</p>
+          <p className="wrap-break-words">{message.content}</p>
         </div>
         <span className="text-xs text-gray-500 mt-1 px-2">
           {formatDistanceToNow(new Date(message.createdAt), {

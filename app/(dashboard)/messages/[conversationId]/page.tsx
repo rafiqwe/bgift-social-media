@@ -27,6 +27,7 @@ export default function RealtimeConversationPage() {
 
   const { currentUserId } = useUser();
 
+
   const { socket, isConnected } = useSocket(currentUserId);
   const { isUserOnline } = useOnlineStatus(socket);
 

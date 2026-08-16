@@ -44,6 +44,7 @@ export default function RealtimeMessageInput({
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+
     if (!message.trim() || isSending) return;
 
     // Stop typing indicator
@@ -57,6 +58,7 @@ export default function RealtimeMessageInput({
     }
 
     const success = await onSend(message);
+    
     if (success) {
       setMessage("");
     }
