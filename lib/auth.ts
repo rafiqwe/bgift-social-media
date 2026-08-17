@@ -1,9 +1,9 @@
-import NextAuth from "next-auth"
-import { PrismaAdapter } from "@auth/prisma-adapter"
-import GoogleProvider from "next-auth/providers/google"
-import GitHubProvider from "next-auth/providers/github"
-import FacebookProvider from "next-auth/providers/facebook"
-import { prisma } from "@/lib/db"
+import NextAuth from "next-auth";
+import { PrismaAdapter } from "@auth/prisma-adapter";
+import GoogleProvider from "next-auth/providers/google";
+import GitHubProvider from "next-auth/providers/github";
+import FacebookProvider from "next-auth/providers/facebook";
+import { prisma } from "@/lib/db";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   adapter: PrismaAdapter(prisma),
@@ -11,6 +11,13 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      authorization: {
+        params: {
+          prompt: "select_account",
+          access_type: "offline",
+          response_type: "code",
+        },
+      },
     }),
     GitHubProvider({
       clientId: process.env.GITHUB_CLIENT_ID!,
@@ -29,70 +36,56 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     error: "/login",
   },
   callbacks: {
-    async signIn({ user, account, profile }) {
+    async signIn({ user }) {
       if (!user.email) return false;
 
-      // Check if a user already exists with this email
       const existingUser = await prisma.user.findUnique({
         where: { email: user.email },
-        include: { accounts: true },
       });
 
-      if (existingUser) {
-        // If this OAuth account is not linked yet, link it
-        const linkedAccount = await prisma.account.findUnique({
-          where: {
-            provider_providerAccountId: {
-              provider: account!.provider,
-              providerAccountId: account!.providerAccountId,
-            },
-          },
-        });
-
-        if (!linkedAccount) {
-          await prisma.account.create({
-            data: {
-              userId: existingUser.id,
-              type: account!.type,
-              provider: account!.provider,
-              providerAccountId: account!.providerAccountId,
-              access_token: account!.access_token,
-              refresh_token: account!.refresh_token,
-              expires_at: account!.expires_at,
-              token_type: account!.token_type,
-              scope: account!.scope,
-              id_token: account!.id_token,
-              session_state: account!.session_state as string,
-            },
-          });
-        }
-      }
-
-      // Assign username based on provider
-      if (account?.provider === "github") {
-        user.username = profile?.login as string | undefined;
-      }
-      if (account?.provider === "facebook") {
-        user.username = profile?.name?.toLowerCase().trim() as string | undefined;
-      }
-      if (account?.provider === "google") {
+      // Ensure existing users without a username get one assigned
+      if (existingUser && !existingUser.username) {
         const baseUsername =
-          user.email?.split("@")[0] ||
+          user.email.split("@")[0] ||
           user.name?.replace(/\s+/g, "").toLowerCase() ||
           "user";
-        user.username = baseUsername;
+
+        let username = baseUsername;
+        let counter = 1;
+        while (await prisma.user.findUnique({ where: { username } })) {
+          username = `${baseUsername}${counter}`;
+          counter++;
+        }
+
+        await prisma.user.update({
+          where: { id: existingUser.id },
+          data: { username, isVerified: true },
+        });
       }
 
       return true;
     },
 
-    async jwt({ token, user }) {
+    async jwt({ token, user, account, trigger }) {
       if (user) {
-        token.id = user.id;
-        token.email = user.email;
-        token.name = user.name;
-        token.image = user.image;
+        token.id = user.id as string;
       }
+
+      if (token.id && (account || trigger === "update")) {
+        const dbUser = await prisma.user.findUnique({
+          where: { id: token.id },
+        });
+
+        if (dbUser) {
+          token.id = dbUser.id;
+          token.email = dbUser.email;
+          token.name = dbUser.name;
+          token.image = dbUser.image;
+          token.username = dbUser.username;
+          token.isVerified = dbUser.isVerified;
+        }
+      }
+
       return token;
     },
 
@@ -102,13 +95,15 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         session.user.email = token.email as string;
         session.user.name = token.name as string;
         session.user.image = token.image as string;
+        session.user.username = token.username as string;
+        session.user.isVerified = token.isVerified as boolean;
       }
       return session;
     },
   },
+
   events: {
     async createUser({ user }) {
-      // Generate a unique username
       const baseUsername =
         user.email?.split("@")[0] ||
         user.name?.replace(/\s+/g, "").toLowerCase() ||
@@ -124,12 +119,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
       await prisma.user.update({
         where: { id: user.id },
-        data: {
-          username,
-          isVerified: true,
-        },
+        data: { username, isVerified: true },
       });
     },
   },
+
   debug: process.env.NODE_ENV === "development",
 });
