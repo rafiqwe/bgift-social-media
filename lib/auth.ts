@@ -5,7 +5,6 @@ import GitHubProvider from "next-auth/providers/github";
 import FacebookProvider from "next-auth/providers/facebook";
 import { db } from "@/lib/db";
 
-// Helper function to generate a quick, unique username fallback
 const generateUsername = (email?: string | null, name?: string | null) => {
   const base = email?.split("@")[0] || name?.replace(/\s+/g, "").toLowerCase() || "user";
   const suffix = Math.floor(1000 + Math.random() * 9000);
